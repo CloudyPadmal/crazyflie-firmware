@@ -8,8 +8,8 @@
 #include "system.h"
 #include "debug.h"
 #include "log.h"
-#include "pca95x4.h"
-#include "vl53l0x.h"
+#include "pca9555.h"
+#include "vl53l1x.h"
 
 #include "i2cdev.h"
 
@@ -21,17 +21,18 @@
 static bool isInit = false;
 static bool isTested = false;
 
-#define OA_PIN_UP     PCA95X4_P0
-#define OA_PIN_FRONT  PCA95X4_P4
-#define OA_PIN_BACK   PCA95X4_P1
-#define OA_PIN_LEFT   PCA95X4_P6
-#define OA_PIN_RIGHT  PCA95X4_P2
+#define OA_PIN_UP     PCA9555_P0
+#define OA_PIN_FRONT  PCA9555_P4
+#define OA_PIN_BACK   PCA9555_P1
+#define OA_PIN_LEFT   PCA9555_P6
+#define OA_PIN_RIGHT  PCA9555_P2
 
 static VL53L0xDev devFront;
 static VL53L0xDev devBack;
 static VL53L0xDev devUp;
 static VL53L0xDev devLeft;
 static VL53L0xDev devRight;
+// VL53L1_Dev_t
 
 static uint16_t rangeFront;
 static uint16_t rangeBack;
