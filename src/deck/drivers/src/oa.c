@@ -1,28 +1,3 @@
-/*
- *    ||          ____  _ __
- * +------+      / __ )(_) /_______________ _____  ___
- * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
- * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
- *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
- *
- * LPS node firmware.
- *
- * Copyright 2017, Bitcraze AB
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Foobar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
- */
-/* oa.c: Codename Obstacle Avoidance driver */
 #include "deck.h"
 #include "param.h"
 
@@ -31,8 +6,9 @@
 #include "system.h"
 #include "debug.h"
 #include "log.h"
-#include "pca95x4.h"
-#include "vl53l0x.h"
+#include "pca9555.h"
+
+#include "vl53l1x.h"
 
 #include "i2cdev.h"
 
@@ -44,137 +20,207 @@
 static bool isInit = false;
 static bool isTested = false;
 
-#define OA_PIN_UP     PCA95X4_P0
-#define OA_PIN_FRONT  PCA95X4_P4
-#define OA_PIN_BACK   PCA95X4_P1
-#define OA_PIN_LEFT   PCA95X4_P6
-#define OA_PIN_RIGHT  PCA95X4_P2
+#define OA_PIN_UP     PCA9555_P0
+#define OA_PIN_FRONT  PCA9555_P4
+#define OA_PIN_BACK   PCA9555_P1
+#define OA_PIN_LEFT   PCA9555_P6
+#define OA_PIN_RIGHT  PCA9555_P2
 
-static VL53L0xDev devFront;
+// TODO: Assign pins correctly
+#define OA_PIN_NORTH  PCA9555_P
+#define OA_PIN_NEAST  PCA9555_P
+#define OA_PIN_EFLAT  PCA9555_P
+#define OA_PIN_EDOWN  PCA9555_P
+#define OA_PIN_ERISE  PCA9555_P
+#define OA_PIN_SEAST  PCA9555_P
+#define OA_PIN_SOUTH  PCA9555_P
+#define OA_PIN_SWEST  PCA9555_P
+#define OA_PIN_WRISE  PCA9555_P
+#define OA_PIN_WDOWN  PCA9555_P
+#define OA_PIN_WFLAT  PCA9555_P
+#define OA_PIN_NWEST  PCA9555_P
+#define OA_PIN_UPPER  PCA9555_P
+
+/*static VL53L0xDev devFront;
 static VL53L0xDev devBack;
 static VL53L0xDev devUp;
 static VL53L0xDev devLeft;
-static VL53L0xDev devRight;
+static VL53L0xDev devRight;*/
 
-static uint16_t rangeFront;
+// New ToFs
+static VL53L1_DEV devNORTH;/*
+static VL53L1_DEV devNEAST;
+static VL53L1_DEV devEFLAT;
+static VL53L1_DEV devEDOWN;
+static VL53L1_DEV devERISE;
+static VL53L1_DEV devSEAST;
+static VL53L1_DEV devSOUTH;
+static VL53L1_DEV devSWEST;
+static VL53L1_DEV devWRISE;
+static VL53L1_DEV devWDOWN;
+static VL53L1_DEV devWFLAT;
+static VL53L1_DEV devNWEST;
+static VL53L1_DEV devUPPER;*/
+
+/*static uint16_t rangeFront;
 static uint16_t rangeBack;
 static uint16_t rangeUp;
 static uint16_t rangeLeft;
-static uint16_t rangeRight;
+static uint16_t rangeRight;*/
 
-static void oaTask(void *param)
-{
-  systemWaitStart();
+// New ranges
+static VL53L1_RangingMeasurementData_t rangeNORTH;
+static int16_t rNORTH;/*
+static VL53L1_RangingMeasurementData_t rangeNEAST;
+static int16_t rNEAST;
+static VL53L1_RangingMeasurementData_t rangeEFLAT;
+static int16_t rEFLAT;
+static VL53L1_RangingMeasurementData_t rangeEDOWN;
+static int16_t rEDOWN;
+static VL53L1_RangingMeasurementData_t rangeERISE;
+static int16_t rERISE;
+static VL53L1_RangingMeasurementData_t rangeSEAST;
+static int16_t rSEAST;
+static VL53L1_RangingMeasurementData_t rangeSOUTH;
+static int16_t rSOUTH;
+static VL53L1_RangingMeasurementData_t rangeSWEST;
+static int16_t rSWEST;
+static VL53L1_RangingMeasurementData_t rangeWRISE;
+static int16_t rWRISE;
+static VL53L1_RangingMeasurementData_t rangeWDOWN;
+static int16_t rWDOWN;
+static VL53L1_RangingMeasurementData_t rangeWFLAT;
+static int16_t rWFLAT;
+static VL53L1_RangingMeasurementData_t rangeNWEST;
+static int16_t rNWEST;
+static VL53L1_RangingMeasurementData_t rangeUPPER;
+static int16_t rUPPER;*/
 
-  vl53l0xStartContinuous(&devFront, 0);
-  vl53l0xStartContinuous(&devBack, 0);
-  vl53l0xStartContinuous(&devUp, 0);
-  vl53l0xStartContinuous(&devLeft, 0);
-  vl53l0xStartContinuous(&devRight, 0);
+static void oaTask(void *param) {
+	systemWaitStart();
 
-  TickType_t lastWakeTime = xTaskGetTickCount();
+	VL53L1_StartMeasurement(devNORTH);
 
-  while(1) {
-    vTaskDelayUntil(&lastWakeTime, M2T(50));
+	/*vl53l0xStartContinuous(&devFront, 0);
+	vl53l0xStartContinuous(&devBack, 0);
+	vl53l0xStartContinuous(&devUp, 0);
+	vl53l0xStartContinuous(&devLeft, 0);
+	vl53l0xStartContinuous(&devRight, 0);*/
 
-    rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
-    rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
-    rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
-    rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
-    rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);
-  }
+	TickType_t lastWakeTime = xTaskGetTickCount();
+
+	while (1) {
+		vTaskDelayUntil(&lastWakeTime, M2T(50));
+
+		VL53L1_Error eNORTH = VL53L1_GetRangingMeasurementData(devNORTH, &rangeNORTH);
+		rNORTH = (eNORTH == VL53L1_ERROR_NONE) ? (rangeNORTH.RangeMilliMeter) : 0;
+
+		/*rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
+		rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
+		rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
+		rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
+		rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);*/
+	}
 }
 
-static void oaInit()
-{
-  if (isInit) {
-    return;
-  }
+static void oaInit() {
+	if (isInit) {
+		return;
+	}
 
-  pca95x4Init();
+	// Initiate PCA Driver
+	pca9555Init();
+	// Output port configuration
+	pca9555ConfigOutputRegA(~(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK));
+	pca9555ConfigOutputRegB(~(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK));
+	// Clear output ports
+	pca9555ClearOutputRegA(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK);
+	pca9555ClearOutputRegB(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK);
 
-  pca95x4ConfigOutput(~(OA_PIN_UP |
-                        OA_PIN_RIGHT |
-                        OA_PIN_LEFT |
-                        OA_PIN_FRONT |
-                        OA_PIN_BACK));
+	isInit = true;
 
-  pca95x4ClearOutput(OA_PIN_UP |
-                     OA_PIN_RIGHT |
-                     OA_PIN_LEFT |
-                     OA_PIN_FRONT |
-                     OA_PIN_BACK);
-
-  isInit = true;
-
-  xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL,
-              /*priority*/3, NULL);
+	xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL, /*priority*/3,
+			NULL);
 }
 
-static bool oaTest()
-{
-  bool pass = isInit;
+static bool oaTest() {
+	bool pass = isInit;
 
-  if (isTested) {
-    DEBUG_PRINT("Cannot test OA deck a second time\n");
-    return false;
-  }
+	if (isTested) {
+		DEBUG_PRINT("Cannot test OA deck a second time\n");
+		return false;
+	}
+/*
+	pca9555SetOutputRegA(OA_PIN_FRONT);
+	if (vl53l0xInit(&devFront, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init front sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init front sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_FRONT);
-  if (vl53l0xInit(&devFront, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init front sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init front sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_BACK);
+	if (vl53l0xInit(&devBack, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init back sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init back sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_BACK);
-  if (vl53l0xInit(&devBack, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init back sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init back sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_UP);
+	if (vl53l0xInit(&devUp, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init up sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init up sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_UP);
-  if (vl53l0xInit(&devUp, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init up sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init up sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegB(OA_PIN_LEFT);
+	if (vl53l0xInit(&devLeft, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init left sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init left sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_LEFT);
-  if (vl53l0xInit(&devLeft, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init left sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init left sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegB(OA_PIN_RIGHT);
+	if (vl53l0xInit(&devRight, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init right sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init right sensor [FAIL]\n");
+		pass = false;
+	}*/
 
-  pca95x4SetOutput(OA_PIN_RIGHT);
-  if (vl53l0xInit(&devRight, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init right sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init right sensor [FAIL]\n");
-    pass = false;
-  }
+	// TODO: Add VL53L1X Sensors
 
-  isTested = true;
 
-  return pass;
+	isTested = true;
+
+	return pass;
 }
 
 static const DeckDriver oa_deck = {
-  .vid = 0xBC,
-  .pid = 0x0B,
-  .name = "bcOA",
-
-  .usedGpio = 0,  // FIXME: set the used pins
-
-  .init = oaInit,
-  .test = oaTest,
-};
+		.vid = 0xBC,
+		.pid = 0x0B,
+		.name = "bcOA",
+		.usedGpio = 0,  // FIXME: set the used pins
+		.init = oaInit, .test = oaTest, };
 
 DECK_DRIVER(oa_deck);
 
@@ -183,9 +229,18 @@ PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcOA, &isInit)
 PARAM_GROUP_STOP(deck)
 
 LOG_GROUP_START(oa)
-LOG_ADD(LOG_UINT16, front, &rangeFront)
-LOG_ADD(LOG_UINT16, back, &rangeBack)
-LOG_ADD(LOG_UINT16, up, &rangeUp)
-LOG_ADD(LOG_UINT16, left, &rangeLeft)
-LOG_ADD(LOG_UINT16, right, &rangeRight)
+LOG_ADD(LOG_UINT16, NORTH, &rNORTH)/*
+LOG_ADD(LOG_UINT16, NEAST, &rNEAST)
+LOG_ADD(LOG_UINT16, EFLAT, &rEFLAT)
+LOG_ADD(LOG_UINT16, EDOWN, &rEDOWN)
+LOG_ADD(LOG_UINT16, ERISE, &rERISE)
+LOG_ADD(LOG_UINT16, SEAST, &rSEAST)
+LOG_ADD(LOG_UINT16, SOUTH, &rSOUTH)
+LOG_ADD(LOG_UINT16, SWEST, &rSWEST)
+LOG_ADD(LOG_UINT16, WRISE, &rWRISE)
+LOG_ADD(LOG_UINT16, WDOWN, &rWDOWN)
+LOG_ADD(LOG_UINT16, WFLAT, &rWFLAT)
+LOG_ADD(LOG_UINT16, NWEST, &rNWEST)
+LOG_ADD(LOG_UINT16, UPPER, &rUPPER)*/
 LOG_GROUP_STOP(oa)
+

@@ -192,7 +192,6 @@ PROJ_OBJ_CF2 += lpsTdoa3Tag.o tdoaEngine.o tdoaStats.o tdoaStorage.o
 PROJ_OBJ_CF2 += outlierFilter.o
 PROJ_OBJ_CF2 += flowdeck_v1v2.o
 PROJ_OBJ_CF2 += oa.o
-PROJ_OBJ_CF2 += oa_fyp.o
 PROJ_OBJ_CF2 += multiranger.o
 
 ifeq ($(LPS_TDOA_ENABLE), 1)
