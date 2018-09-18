@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "log.h"
 #include "pca9555.h"
-#include "vl53l1x.h"
+#include "vl53l0x.h"
 
 #include "i2cdev.h"
 
@@ -68,7 +68,7 @@ static void oaInit() {
 	}
 
 	// Initiate PCA Driver
-	bool oaDeckReady = pca9555Init();
+	pca9555Init();
 	// Output port configuration
 	pca9555ConfigOutputRegA(~(OA_PIN_UP |
 	OA_PIN_RIGHT |
@@ -94,7 +94,7 @@ static void oaInit() {
 
 	isInit = true;
 
-	xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL, /*priority*/3,
+	xTaskCreate(oaTask, "oa_fyp", 2*configMINIMAL_STACK_SIZE, NULL, /*priority*/3,
 			NULL);
 }
 
@@ -151,14 +151,14 @@ static bool oaTest() {
 	return pass;
 }
 
-static const DeckDriver oa_deck = {
+static const DeckDriver oa_fyp_deck = {
 		.vid = 0xBC,
 		.pid = 0x0B,
 		.name = "bcOA",
 		.usedGpio = 0,  // FIXME: set the used pins
 		.init = oaInit, .test = oaTest, };
 
-DECK_DRIVER(oa_deck);
+DECK_DRIVER(oa_fyp_deck);
 
 PARAM_GROUP_START(deck)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcOA, &isInit)

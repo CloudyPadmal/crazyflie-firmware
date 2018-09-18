@@ -130,7 +130,7 @@ PROJ_OBJ_CF2 += uart_syslink.o swd.o uart1.o uart2.o watchdog.o
 PROJ_OBJ_CF2 += cppm.o
 PROJ_OBJ_CF2 += bmi055_accel.o bmi055_gyro.o bmi160.o bmp280.o bstdr_comm_support.o bmm150.o
 PROJ_OBJ_CF2 += bmi088_accel.o bmi088_gyro.o bmi088_fifo.o bmp3.o
-PROJ_OBJ_CF2 += pca9685.o vl53l0x.o pca95x4.o vl53l1x.o pmw3901.o
+PROJ_OBJ_CF2 += pca9685.o vl53l0x.o pca95x4.o pca9555.o vl53l1x.o pmw3901.o
 
 # USB Files
 PROJ_OBJ_CF2 += usb_bsp.o usblink.o usbd_desc.o usb.o
@@ -192,6 +192,7 @@ PROJ_OBJ_CF2 += lpsTdoa3Tag.o tdoaEngine.o tdoaStats.o tdoaStorage.o
 PROJ_OBJ_CF2 += outlierFilter.o
 PROJ_OBJ_CF2 += flowdeck_v1v2.o
 PROJ_OBJ_CF2 += oa.o
+PROJ_OBJ_CF2 += oa_fyp.o
 PROJ_OBJ_CF2 += multiranger.o
 
 ifeq ($(LPS_TDOA_ENABLE), 1)
