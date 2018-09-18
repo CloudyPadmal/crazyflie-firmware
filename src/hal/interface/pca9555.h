@@ -1,4 +1,9 @@
-/* pca9554.h - Functions for interfacing PCA95X4 I2C GPIO extender */
+/*
+ * pca9554.h - Functions for interfacing PCA95X4 I2C GPIO extender
+ *
+ * Refer to http://www.ti.com/lit/ds/symlink/pca9555.pdf for more information
+ * Also refer http://www.ti.com/lit/ds/symlink/pca9554.pdf for comparisons
+ * */
 
 #ifndef __PCA9555_H__
 #define __PCA9555_H__
@@ -8,10 +13,14 @@
 
 #define PCA9555_DEFAULT_ADDRESS 0b0100000
 
-#define PCA9555_INPUT_REG   (0x00)
-#define PCA9555_OUTPUT_REG  (0x01)
-#define PCA9555_POL_REG     (0x02)
-#define PCA9555_CONFIG_REG  (0x03)
+#define PCA9555_INPUT_REGA   	(0x00)
+#define PCA9555_INPUT_REGB   	(0x01)
+#define PCA9555_OUTPUT_REGA  	(0x02)
+#define PCA9555_OUTPUT_REGB  	(0x03)
+#define PCA9555_POL_REGA     	(0x04)
+#define PCA9555_POL_REGB     	(0x05)
+#define PCA9555_CONFIG_REGA  	(0x06)
+#define PCA9555_CONFIG_REGB  	(0x07)
 
 #define PCA9555_P0   (1 << 0)
 #define PCA9555_P1   (1 << 1)
@@ -52,6 +61,6 @@ bool pca9555SetOutput(uint32_t mask);
 /**
  * Reset output bits.
  */
-bool pca95x4ClearOutput(uint32_t mask);
+bool pca9555ClearOutput(uint32_t mask);
 
 #endif //__PCA9555_H__

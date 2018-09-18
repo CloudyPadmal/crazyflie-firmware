@@ -11,49 +11,66 @@
 static uint8_t devAddr;
 static I2C_Dev *I2Cx;
 
-void pca9555Init()
-{
-  i2cdevInit(I2C1_DEV);
-  I2Cx = I2C1_DEV;
-  devAddr = PCA9555_DEFAULT_ADDRESS;
+void pca9555Init() {
+	i2cdevInit(I2C1_DEV);
+	I2Cx = I2C1_DEV;
+	devAddr = PCA9555_DEFAULT_ADDRESS;
 }
 
-bool pca9555Test()
-{
-  uint8_t tb;
-  bool pass;
+/**
+ * Reads the config register and checks if there is any error in reading
+ * the register
+ */
+bool pca9555Test() {
+	uint8_t tb;
+	bool pass_set1, pass_set2;
 
-  // Test reading the config register
-  pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REG, &tb);
+	// Test reading the config register
+	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGA, &tb);
+	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGB, &tb);
 
-  return pass;
+	// TODO: We will turn on the LED at this level
+	i2cdevWrite(I2Cx, devAddr, PCA9555_OUTPUT_REGA, /*Find where the LED is and bits are here*/0x1);
+
+	return pass_set1 & pass_set2;
 }
 
 bool pca9555ConfigOutput(uint32_t val) {
-  bool pass;
+	bool pass_set1, pass_set2;
 
-  pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_CONFIG_REG, val);
-  return pass;
+	pass_set1 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_CONFIG_REGA, val);
+	pass_set2 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_CONFIG_REGB, val);
+
+	return pass_set1 & pass_set2;
 }
 
+/**
+ * TODO: Check how this mask is set as we have two different registers now
+ */
 bool pca9555SetOutput(uint32_t mask) {
-  uint8_t val;
-  bool pass;
+	uint8_t val_1, val_2;
+	bool pass_set1, pass_set2;
 
-  pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REG, &val);
-  val |= mask;
-  pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REG, val);
+	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val_1);
+	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, &val_2);
+	val_1 |= mask;
+	val_2 |= mask;
+	pass_set1 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val_1);
+	pass_set2 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, val_2);
 
-  return pass;
+	return pass_set1 & pass_set2;
 }
 
 bool pca9555ClearOutput(uint32_t mask) {
-  uint8_t val;
-  bool pass;
+	uint8_t val_1, val_2;
+	bool pass_set1, pass_set2;
 
-  pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REG, &val);
-  val &= ~mask;
-  pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REG, val);
+	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val_1);
+	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, &val_2);
+	val_1 &= ~mask;
+	val_2 &= ~mask;
+	pass_set1 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val_1);
+	pass_set2 = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, val_2);
 
-  return pass;
+	return pass_set1 & pass_set2;
 }
