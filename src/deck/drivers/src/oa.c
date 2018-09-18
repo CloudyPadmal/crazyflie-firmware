@@ -41,14 +41,8 @@ static bool isTested = false;
 #define OA_PIN_NWEST  PCA9555_P
 #define OA_PIN_UPPER  PCA9555_P
 
-/*static VL53L0xDev devFront;
-static VL53L0xDev devBack;
-static VL53L0xDev devUp;
-static VL53L0xDev devLeft;
-static VL53L0xDev devRight;*/
-
 // New ToFs
-static VL53L1_DEV devNORTH;/*
+static VL53L1_DEV devNORTH;
 static VL53L1_DEV devNEAST;
 static VL53L1_DEV devEFLAT;
 static VL53L1_DEV devEDOWN;
@@ -60,17 +54,11 @@ static VL53L1_DEV devWRISE;
 static VL53L1_DEV devWDOWN;
 static VL53L1_DEV devWFLAT;
 static VL53L1_DEV devNWEST;
-static VL53L1_DEV devUPPER;*/
-
-/*static uint16_t rangeFront;
-static uint16_t rangeBack;
-static uint16_t rangeUp;
-static uint16_t rangeLeft;
-static uint16_t rangeRight;*/
+static VL53L1_DEV devUPPER;
 
 // New ranges
 static VL53L1_RangingMeasurementData_t rangeNORTH;
-static int16_t rNORTH;/*
+static int16_t rNORTH;
 static VL53L1_RangingMeasurementData_t rangeNEAST;
 static int16_t rNEAST;
 static VL53L1_RangingMeasurementData_t rangeEFLAT;
@@ -94,18 +82,41 @@ static int16_t rWFLAT;
 static VL53L1_RangingMeasurementData_t rangeNWEST;
 static int16_t rNWEST;
 static VL53L1_RangingMeasurementData_t rangeUPPER;
-static int16_t rUPPER;*/
+static int16_t rUPPER;
+
+static void setToFMeasurementModes(VL53L1_DEV Dev) {
+	// Dev->Data->LLData->measurement_mode = VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT;
+}
 
 static void oaTask(void *param) {
 	systemWaitStart();
 
+	setToFMeasurementModes(devNORTH);
 	VL53L1_StartMeasurement(devNORTH);
-
-	/*vl53l0xStartContinuous(&devFront, 0);
-	vl53l0xStartContinuous(&devBack, 0);
-	vl53l0xStartContinuous(&devUp, 0);
-	vl53l0xStartContinuous(&devLeft, 0);
-	vl53l0xStartContinuous(&devRight, 0);*/
+	setToFMeasurementModes(devNEAST);
+	VL53L1_StartMeasurement(devNEAST);
+	setToFMeasurementModes(devEFLAT);
+	VL53L1_StartMeasurement(devEFLAT);
+	setToFMeasurementModes(devEDOWN);
+	VL53L1_StartMeasurement(devEDOWN);
+	setToFMeasurementModes(devERISE);
+	VL53L1_StartMeasurement(devERISE);
+	setToFMeasurementModes(devSEAST);
+	VL53L1_StartMeasurement(devSEAST);
+	setToFMeasurementModes(devSOUTH);
+	VL53L1_StartMeasurement(devSOUTH);
+	setToFMeasurementModes(devSWEST);
+	VL53L1_StartMeasurement(devSWEST);
+	setToFMeasurementModes(devWRISE);
+	VL53L1_StartMeasurement(devWRISE);
+	setToFMeasurementModes(devWDOWN);
+	VL53L1_StartMeasurement(devWDOWN);
+	setToFMeasurementModes(devWFLAT);
+	VL53L1_StartMeasurement(devWFLAT);
+	setToFMeasurementModes(devNWEST);
+	VL53L1_StartMeasurement(devNWEST);
+	setToFMeasurementModes(devUPPER);
+	VL53L1_StartMeasurement(devUPPER);
 
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
@@ -114,12 +125,55 @@ static void oaTask(void *param) {
 
 		VL53L1_Error eNORTH = VL53L1_GetRangingMeasurementData(devNORTH, &rangeNORTH);
 		rNORTH = (eNORTH == VL53L1_ERROR_NONE) ? (rangeNORTH.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devNORTH);
 
-		/*rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
-		rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
-		rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
-		rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
-		rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);*/
+		VL53L1_Error eNEAST = VL53L1_GetRangingMeasurementData(devNEAST, &rangeNEAST);
+		rNEAST = (eNEAST == VL53L1_ERROR_NONE) ? (rangeNEAST.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devNEAST);
+
+		VL53L1_Error eEFLAT = VL53L1_GetRangingMeasurementData(devEFLAT, &rangeEFLAT);
+		rEFLAT = (eEFLAT == VL53L1_ERROR_NONE) ? (rangeEFLAT.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devEFLAT);
+
+		VL53L1_Error eEDOWN = VL53L1_GetRangingMeasurementData(devEDOWN, &rangeEDOWN);
+		rEDOWN = (eEDOWN == VL53L1_ERROR_NONE) ? (rangeEDOWN.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devEDOWN);
+
+		VL53L1_Error eERISE = VL53L1_GetRangingMeasurementData(devERISE, &rangeERISE);
+		rERISE = (eERISE == VL53L1_ERROR_NONE) ? (rangeERISE.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devERISE);
+
+		VL53L1_Error eSEAST = VL53L1_GetRangingMeasurementData(devSEAST, &rangeSEAST);
+		rSEAST = (eSEAST == VL53L1_ERROR_NONE) ? (rangeSEAST.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devSEAST);
+
+		VL53L1_Error eSOUTH = VL53L1_GetRangingMeasurementData(devSOUTH, &rangeSOUTH);
+		rSOUTH = (eSOUTH == VL53L1_ERROR_NONE) ? (rangeSOUTH.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devSOUTH);
+
+		VL53L1_Error eSWEST = VL53L1_GetRangingMeasurementData(devSWEST, &rangeSWEST);
+		rSWEST = (eSWEST == VL53L1_ERROR_NONE) ? (rangeSWEST.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devSWEST);
+
+		VL53L1_Error eWRISE = VL53L1_GetRangingMeasurementData(devWRISE, &rangeWRISE);
+		rWRISE = (eWRISE == VL53L1_ERROR_NONE) ? (rangeWRISE.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devWRISE);
+
+		VL53L1_Error eWDOWN = VL53L1_GetRangingMeasurementData(devWDOWN, &rangeWDOWN);
+		rWDOWN = (eWDOWN == VL53L1_ERROR_NONE) ? (rangeWDOWN.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devWDOWN);
+
+		VL53L1_Error eWFLAT = VL53L1_GetRangingMeasurementData(devWFLAT, &rangeWFLAT);
+		rWFLAT = (eWFLAT == VL53L1_ERROR_NONE) ? (rangeWFLAT.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devWFLAT);
+
+		VL53L1_Error eNWEST = VL53L1_GetRangingMeasurementData(devNWEST, &rangeNWEST);
+		rNWEST = (eNWEST == VL53L1_ERROR_NONE) ? (rangeNWEST.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devNWEST);
+
+		VL53L1_Error eUPPER = VL53L1_GetRangingMeasurementData(devUPPER, &rangeUPPER);
+		rUPPER = (eUPPER == VL53L1_ERROR_NONE) ? (rangeUPPER.RangeMilliMeter) : 0;
+		VL53L1_ClearInterruptAndStartMeasurement(devUPPER);
 	}
 }
 
@@ -155,8 +209,7 @@ static void oaInit() {
 
 	isInit = true;
 
-	xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL, /*priority*/3,
-			NULL);
+	xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 }
 
 static bool oaTest() {
