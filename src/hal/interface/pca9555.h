@@ -41,7 +41,7 @@
 /**
  * Initialize the PCA9555 sub-system.
  */
-void pca9555Init();
+bool pca9555Init();
 
 /**
  * Test the PCA9555 sub-system.
@@ -49,18 +49,21 @@ void pca9555Init();
 bool pca9555Test();
 
 /**
- * Set the output register value.
+ * Set the output register values.
  */
-bool pca9555ConfigOutput(uint32_t val);
+bool pca9555ConfigOutputRegA(uint32_t val);
+bool pca9555ConfigOutputRegB(uint32_t val);
 
 /**
  * Set output bits.
  */
-bool pca9555SetOutput(uint32_t mask);
+bool pca9555SetOutputRegA(uint32_t mask);
+bool pca9555SetOutputRegB(uint32_t mask);
 
 /**
  * Reset output bits.
  */
-bool pca9555ClearOutput(uint32_t mask);
+bool pca9555ClearOutputRegA(uint32_t mask);
+bool pca9555ClearOutputRegB(uint32_t mask);
 
 #endif //__PCA9555_H__

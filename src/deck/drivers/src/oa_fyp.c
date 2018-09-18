@@ -40,119 +40,123 @@ static uint16_t rangeUp;
 static uint16_t rangeLeft;
 static uint16_t rangeRight;
 
-static void oaTask(void *param)
-{
-  systemWaitStart();
+static void oaTask(void *param) {
+	systemWaitStart();
 
-  vl53l0xStartContinuous(&devFront, 0);
-  vl53l0xStartContinuous(&devBack, 0);
-  vl53l0xStartContinuous(&devUp, 0);
-  vl53l0xStartContinuous(&devLeft, 0);
-  vl53l0xStartContinuous(&devRight, 0);
+	vl53l0xStartContinuous(&devFront, 0);
+	vl53l0xStartContinuous(&devBack, 0);
+	vl53l0xStartContinuous(&devUp, 0);
+	vl53l0xStartContinuous(&devLeft, 0);
+	vl53l0xStartContinuous(&devRight, 0);
 
-  TickType_t lastWakeTime = xTaskGetTickCount();
+	TickType_t lastWakeTime = xTaskGetTickCount();
 
-  while(1) {
-    vTaskDelayUntil(&lastWakeTime, M2T(50));
+	while (1) {
+		vTaskDelayUntil(&lastWakeTime, M2T(50));
 
-    rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
-    rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
-    rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
-    rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
-    rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);
-  }
+		rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
+		rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
+		rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
+		rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
+		rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);
+	}
 }
 
-static void oaInit()
-{
-  if (isInit) {
-    return;
-  }
+static void oaInit() {
+	if (isInit) {
+		return;
+	}
 
-  pca95x4Init();
+	// Initiate PCA Driver
+	bool oaDeckReady = pca9555Init();
+	// Output port configuration
+	pca9555ConfigOutputRegA(~(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK));
+	pca9555ConfigOutputRegB(~(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK));
+	// Clear output ports
+	pca9555ClearOutputRegA(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK);
+	pca9555ClearOutputRegB(OA_PIN_UP |
+	OA_PIN_RIGHT |
+	OA_PIN_LEFT |
+	OA_PIN_FRONT |
+	OA_PIN_BACK);
 
-  pca95x4ConfigOutput(~(OA_PIN_UP |
-                        OA_PIN_RIGHT |
-                        OA_PIN_LEFT |
-                        OA_PIN_FRONT |
-                        OA_PIN_BACK));
+	isInit = true;
 
-  pca95x4ClearOutput(OA_PIN_UP |
-                     OA_PIN_RIGHT |
-                     OA_PIN_LEFT |
-                     OA_PIN_FRONT |
-                     OA_PIN_BACK);
-
-  isInit = true;
-
-  xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL,
-              /*priority*/3, NULL);
+	xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL, /*priority*/3,
+			NULL);
 }
 
-static bool oaTest()
-{
-  bool pass = isInit;
+static bool oaTest() {
+	bool pass = isInit;
 
-  if (isTested) {
-    DEBUG_PRINT("Cannot test OA deck a second time\n");
-    return false;
-  }
+	if (isTested) {
+		DEBUG_PRINT("Cannot test OA deck a second time\n");
+		return false;
+	}
 
-  pca95x4SetOutput(OA_PIN_FRONT);
-  if (vl53l0xInit(&devFront, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init front sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init front sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_FRONT);
+	if (vl53l0xInit(&devFront, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init front sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init front sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_BACK);
-  if (vl53l0xInit(&devBack, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init back sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init back sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_BACK);
+	if (vl53l0xInit(&devBack, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init back sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init back sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_UP);
-  if (vl53l0xInit(&devUp, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init up sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init up sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_UP);
+	if (vl53l0xInit(&devUp, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init up sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init up sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_LEFT);
-  if (vl53l0xInit(&devLeft, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init left sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init left sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegB(OA_PIN_LEFT);
+	if (vl53l0xInit(&devLeft, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init left sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init left sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_RIGHT);
-  if (vl53l0xInit(&devRight, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init right sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init right sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegB(OA_PIN_RIGHT);
+	if (vl53l0xInit(&devRight, I2C1_DEV, true)) {
+		DEBUG_PRINT("Init right sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init right sensor [FAIL]\n");
+		pass = false;
+	}
 
-  isTested = true;
+	isTested = true;
 
-  return pass;
+	return pass;
 }
 
 static const DeckDriver oa_deck = {
-  .vid = 0xBC,
-  .pid = 0x0B,
-  .name = "bcOA",
-
-  .usedGpio = 0,  // FIXME: set the used pins
-
-  .init = oaInit,
-  .test = oaTest,
-};
+		.vid = 0xBC,
+		.pid = 0x0B,
+		.name = "bcOA",
+		.usedGpio = 0,  // FIXME: set the used pins
+		.init = oaInit, .test = oaTest, };
 
 DECK_DRIVER(oa_deck);
 
