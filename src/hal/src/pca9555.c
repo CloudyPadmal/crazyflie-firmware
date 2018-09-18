@@ -31,8 +31,7 @@ bool pca9555Test() {
 	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGA, &tb);
 	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGB, &tb);
 
-	// TODO: We will turn on the LED at this level
-	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, /*Find where the LED is and bits are here*/0x00);
+	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, PCA9555_P00);
 
 	return pass_set1 & pass_set2;
 }
