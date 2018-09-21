@@ -8,6 +8,8 @@
 
 #include "debug.h"
 
+#include "task.h"
+
 static uint8_t devAddr;
 static I2C_Dev *I2Cx;
 

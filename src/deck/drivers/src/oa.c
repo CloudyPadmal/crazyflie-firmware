@@ -20,20 +20,20 @@
 static bool isInit = false;
 static bool isTested = false;
 
-#define OA_PIN_LIGHT  PCA9555_P00 //
-#define OA_PIN_NORTH  PCA9555_P02 //
-#define OA_PIN_NEAST  PCA9555_P03
-#define OA_PIN_EFLAT  PCA9555_P04 //
-#define OA_PIN_EDOWN  PCA9555_P05
-#define OA_PIN_ERISE  PCA9555_P06
-#define OA_PIN_SEAST  PCA9555_P07
-#define OA_PIN_SOUTH  PCA9555_P10
-#define OA_PIN_SWEST  PCA9555_P11
-#define OA_PIN_WRISE  PCA9555_P12
-#define OA_PIN_WDOWN  PCA9555_P13
-#define OA_PIN_WFLAT  PCA9555_P14
-#define OA_PIN_NWEST  PCA9555_P01 //
-#define OA_PIN_UPPER  PCA9555_P17
+#define OA_PIN_LIGHT  PCA9555_P00 // OK
+#define OA_PIN_NORTH  PCA9555_P02 // OK
+#define OA_PIN_NEAST  PCA9555_P03 // FAIL // TODO: Check this sensor
+#define OA_PIN_EFLAT  PCA9555_P04 // OK
+#define OA_PIN_EDOWN  PCA9555_P05 // NOT CONNECTED
+#define OA_PIN_ERISE  PCA9555_P06 // NOT CONNECTED
+#define OA_PIN_SEAST  PCA9555_P07 // NOT CONNECTED
+#define OA_PIN_SOUTH  PCA9555_P10 // OK
+#define OA_PIN_SWEST  PCA9555_P11 // NOT CONNECTED
+#define OA_PIN_WRISE  PCA9555_P12 // NOT CONNECTED
+#define OA_PIN_WDOWN  PCA9555_P13 // NOT CONNECTED
+#define OA_PIN_WFLAT  PCA9555_P14 // OK
+#define OA_PIN_NWEST  PCA9555_P01 // OK
+#define OA_PIN_UPPER  PCA9555_P17 // OK
 
 static VL53L1_Dev_t devNORTH;
 static VL53L1_Dev_t devNEAST;
@@ -76,7 +76,7 @@ static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
 
     VL53L1_GetRangingMeasurementData(dev, &rangingData);
     range = rangingData.RangeMilliMeter;
-    DEBUG_PRINT("%d\n", range);
+    //DEBUG_PRINT("%d\n", range);
     //VL53L1_ClearInterruptAndStartMeasurement(dev);
     VL53L1_StopMeasurement(dev);VL53L1_StartMeasurement(dev);
 
@@ -105,10 +105,10 @@ static void oaTask(void *param) {
 
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		DEBUG_PRINT("Getting North");
+		//DEBUG_PRINT("Getting North");
 		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
 		//rNEAST = oaGetMeasurementAndRestart(&devNEAST);
-		DEBUG_PRINT("Getting EFlat");
+		//DEBUG_PRINT("Getting EFlat");
 		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
 		//rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
 		//rERISE = oaGetMeasurementAndRestart(&devERISE);
@@ -118,7 +118,7 @@ static void oaTask(void *param) {
 		//rWRISE = oaGetMeasurementAndRestart(&devWRISE);
 		//rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
 		//rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
-		DEBUG_PRINT("Getting NWest");
+		//DEBUG_PRINT("Getting NWest");
 		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
 		//rUPPER = oaGetMeasurementAndRestart(&devUPPER);
 	}
@@ -128,7 +128,6 @@ static void oaInit() {
 	if (isInit) {
 		return;
 	}
-	DEBUG_PRINT("Initiated OA Deck [Start]\n");
 	// Initiate PCA Driver
 	pca9555Init();
 	// Output port configuration
@@ -171,7 +170,7 @@ static void oaInit() {
 	);
 
 	isInit = true;
-	DEBUG_PRINT("Initiated OA Deck [Done]\n");
+	DEBUG_PRINT("Initiated OA Deck [OK]\n");
 	xTaskCreate(oaTask, "oa", 2 * configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 }
 
