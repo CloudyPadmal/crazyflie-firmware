@@ -53,7 +53,6 @@ void deckInit()
 
   for (i=0; i<nDecks; i++) {
     DeckInfo *deck = deckInfo(i);
-
     if (deck->driver->init) {
       if (deck->driver->name) {
         DECK_CORE_DBG_PRINT("Calling INIT from driver %s for deck %i\n", deck->driver->name, i);
