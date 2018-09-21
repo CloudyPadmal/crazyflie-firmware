@@ -22,7 +22,7 @@ static bool isTested = false;
 
 #define OA_PIN_LIGHT  PCA9555_P00 // OK
 #define OA_PIN_NORTH  PCA9555_P02 // OK
-#define OA_PIN_NEAST  PCA9555_P03 // FAIL // TODO: Check this sensor
+#define OA_PIN_NEAST  PCA9555_P03 // FAIL // FIXME: Check this sensor
 #define OA_PIN_EFLAT  PCA9555_P04 // OK
 #define OA_PIN_EDOWN  PCA9555_P05 // NOT CONNECTED
 #define OA_PIN_ERISE  PCA9555_P06 // NOT CONNECTED
@@ -74,7 +74,8 @@ static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
         vTaskDelay(M2T(1));
     }
 
-    VL53L1_GetRangingMeasurementData(dev, &rangingData);
+    VL53L1_Error e = VL53L1_GetRangingMeasurementData(dev, &rangingData);
+    DEBUG_PRINT("%d", e);
     range = rangingData.RangeMilliMeter;
     //DEBUG_PRINT("%d\n", range);
     //VL53L1_ClearInterruptAndStartMeasurement(dev);
@@ -93,34 +94,35 @@ static void oaTask(void *param) {
 	//VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
 	//VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);
 	//VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);
-	//VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
+	VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
 	//VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);
 	//VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
 	//VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);
-	//VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
+	VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
 	VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);
-	//VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
+	VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
 
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		//DEBUG_PRINT("Getting North");
+		DEBUG_PRINT("Getting North");
 		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
 		//rNEAST = oaGetMeasurementAndRestart(&devNEAST);
-		//DEBUG_PRINT("Getting EFlat");
+		DEBUG_PRINT("Getting EFlat");
 		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
 		//rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
 		//rERISE = oaGetMeasurementAndRestart(&devERISE);
 		//rSEAST = oaGetMeasurementAndRestart(&devSEAST);
-		//rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
+		rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
 		//rSWEST = oaGetMeasurementAndRestart(&devSWEST);
 		//rWRISE = oaGetMeasurementAndRestart(&devWRISE);
 		//rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
-		//rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
-		//DEBUG_PRINT("Getting NWest");
+		rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
+		DEBUG_PRINT("Getting NWest");
 		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
-		//rUPPER = oaGetMeasurementAndRestart(&devUPPER);
+		DEBUG_PRINT("Getting Upper");
+		rUPPER = oaGetMeasurementAndRestart(&devUPPER);
 	}
 }
 
@@ -170,7 +172,7 @@ static void oaInit() {
 	);
 
 	isInit = true;
-	DEBUG_PRINT("Initiated OA Deck [OK]\n");
+	DEBUG_PRINT("Initiated FYP OA Deck [OK]\n");
 	xTaskCreate(oaTask, "oa", 2 * configMINIMAL_STACK_SIZE, NULL, 3, NULL);
 }
 
@@ -178,7 +180,7 @@ static bool oaTest() {
 	bool pass = isInit;
 
 	if (isTested) {
-		DEBUG_PRINT("Cannot test OA deck a second time\n");
+		DEBUG_PRINT("Cannot test FYP OA deck a second time\n");
 		return false;
 	}
 
