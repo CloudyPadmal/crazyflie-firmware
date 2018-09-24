@@ -49,7 +49,7 @@
 #endif
 
 // Set the start address 8 step after the VL53L0 dynamic addresses
-static int nextI2CAddress = VL53L1X_DEFAULT_ADDRESS+8;
+static int nextI2CAddress = VL53L1X_DEFAULT_ADDRESS + 8; // Default = 41
 
 
 bool vl53l1xInit(VL53L1_Dev_t *pdev, I2C_Dev *I2Cx)
@@ -67,9 +67,7 @@ bool vl53l1xInit(VL53L1_Dev_t *pdev, I2C_Dev *I2Cx)
   newAddress = nextI2CAddress++;
   taskEXIT_CRITICAL();
 
-  DEBUG_PRINT("Setting %d as device address for ToF -- ", newAddress);
   vl53l1xSetI2CAddress(pdev, newAddress);
-  DEBUG_PRINT(" -- Address %d set\n", newAddress);
 
   status = VL53L1_DataInit(pdev);
 
@@ -101,9 +99,9 @@ VL53L1_Error vl53l1xSetI2CAddress(VL53L1_Dev_t* pdev, uint8_t address)
   VL53L1_Error status = VL53L1_ERROR_NONE;
 
   status = VL53L1_SetDeviceAddress(pdev, address);
-  DEBUG_PRINT("Status for setting %d address is %s ", address, (
+  DEBUG_PRINT("Status for setting %d address is %s\n", address, (
 		  status == VL53L1_ERROR_NONE ? "Success" : (
-		  status == VL53L1_ERROR_CONTROL_INTERFACE ? "Error reported from IO functions!" : "Status Code")
+		  status == VL53L1_ERROR_CONTROL_INTERFACE ? "Not Connected" : "Status Code")
 		)
   );
   pdev->devAddr = address;

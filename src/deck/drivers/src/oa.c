@@ -22,7 +22,7 @@ static bool isTested = false;
 
 #define OA_PIN_LIGHT  PCA9555_P00 // OK
 #define OA_PIN_NORTH  PCA9555_P02 // OK
-#define OA_PIN_NEAST  PCA9555_P03 // FAIL // FIXME: Check this sensor
+#define OA_PIN_NEAST  PCA9555_P03 // OK
 #define OA_PIN_EFLAT  PCA9555_P04 // OK
 #define OA_PIN_EDOWN  PCA9555_P05 // NOT CONNECTED
 #define OA_PIN_ERISE  PCA9555_P06 // NOT CONNECTED
@@ -35,19 +35,19 @@ static bool isTested = false;
 #define OA_PIN_NWEST  PCA9555_P01 // OK
 #define OA_PIN_UPPER  PCA9555_P17 // OK
 
-static VL53L1_Dev_t devNORTH;
-static VL53L1_Dev_t devNEAST;
-static VL53L1_Dev_t devEFLAT;
-static VL53L1_Dev_t devEDOWN;
-static VL53L1_Dev_t devERISE;
-static VL53L1_Dev_t devSEAST;
-static VL53L1_Dev_t devSOUTH;
-static VL53L1_Dev_t devSWEST;
-static VL53L1_Dev_t devWRISE;
-static VL53L1_Dev_t devWDOWN;
-static VL53L1_Dev_t devWFLAT;
-static VL53L1_Dev_t devNWEST;
-static VL53L1_Dev_t devUPPER;
+static VL53L1_Dev_t devNORTH; // 50 FIXME
+static VL53L1_Dev_t devNEAST; // 51 FIXME
+static VL53L1_Dev_t devEFLAT; // 52 FIXME
+static VL53L1_Dev_t devEDOWN; // 53
+static VL53L1_Dev_t devERISE; // 54
+static VL53L1_Dev_t devSEAST; // 55
+static VL53L1_Dev_t devSOUTH; // 56 FIXME
+static VL53L1_Dev_t devSWEST; // 57
+static VL53L1_Dev_t devWRISE; // 58
+static VL53L1_Dev_t devWDOWN; // 59
+static VL53L1_Dev_t devWFLAT; // 60 FUNCTIONAL
+static VL53L1_Dev_t devNWEST; // 49 FIXME
+static VL53L1_Dev_t devUPPER; // 61 FUNCTIONAL
 
 static uint16_t rNORTH;
 static uint16_t rNEAST;
@@ -68,18 +68,20 @@ static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
     VL53L1_RangingMeasurementData_t rangingData;
     uint8_t dataReady = 0;
     uint16_t range;
+    VL53L1_Error errs = 0;
 
     while (dataReady == 0) {
-        VL53L1_GetMeasurementDataReady(dev, &dataReady);
+    	errs = VL53L1_GetMeasurementDataReady(dev, &dataReady);
         vTaskDelay(M2T(1));
     }
 
-    VL53L1_Error e = VL53L1_GetRangingMeasurementData(dev, &rangingData);
-    DEBUG_PRINT("%d", e);
+    DEBUG_PRINT("Data ready error %d\n", errs);
+
+    VL53L1_GetRangingMeasurementData(dev, &rangingData);
     range = rangingData.RangeMilliMeter;
-    //DEBUG_PRINT("%d\n", range);
-    //VL53L1_ClearInterruptAndStartMeasurement(dev);
-    VL53L1_StopMeasurement(dev);VL53L1_StartMeasurement(dev);
+    DEBUG_PRINT(" -- Range --> %d\n", range);
+    VL53L1_StopMeasurement(dev);
+    VL53L1_StartMeasurement(dev);
 
     return range;
 }
@@ -88,41 +90,37 @@ static void oaTask(void *param) {
 
 	systemWaitStart();
 
-	VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);
-	//VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);
-	VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);
+	/*VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);*/
+	/*VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);*/
+	/*VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);*/
 	//VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
 	//VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);
 	//VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);
-	VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
+	/*VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);*/
 	//VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);
 	//VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
 	//VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);
 	VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
-	VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);
-	VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
+	/*VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);*/
+	/*VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);*/
 
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		DEBUG_PRINT("Getting North");
-		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
-		//rNEAST = oaGetMeasurementAndRestart(&devNEAST);
-		DEBUG_PRINT("Getting EFlat");
-		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
+		/*rNORTH = oaGetMeasurementAndRestart(&devNORTH);*/
+		/*rNEAST = oaGetMeasurementAndRestart(&devNEAST);*/
+		/*rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);*/
 		//rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
 		//rERISE = oaGetMeasurementAndRestart(&devERISE);
 		//rSEAST = oaGetMeasurementAndRestart(&devSEAST);
-		rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
+		/*rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);*/
 		//rSWEST = oaGetMeasurementAndRestart(&devSWEST);
 		//rWRISE = oaGetMeasurementAndRestart(&devWRISE);
 		//rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
 		rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
-		DEBUG_PRINT("Getting NWest");
-		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
-		DEBUG_PRINT("Getting Upper");
-		rUPPER = oaGetMeasurementAndRestart(&devUPPER);
+		/*rNWEST = oaGetMeasurementAndRestart(&devNWEST);*/
+		/*rUPPER = oaGetMeasurementAndRestart(&devUPPER);*/
 	}
 }
 
@@ -200,7 +198,7 @@ static bool oaTest() {
 	}
 	pca9555SetOutputRegA(OA_PIN_NEAST);
 	if (vl53l1xInit(&devNEAST, I2C1_DEV)) {
-		DEBUG_PRINT("Init NEAST sensor [OK]\n");
+		DEBUG_PRINT("Init NEAST sensor [OK]\n"); // OK
 	} else {
 		DEBUG_PRINT("Init NEAST sensor [FAIL]\n");
 		//pass = false;
@@ -236,7 +234,7 @@ static bool oaTest() {
 
 	pca9555SetOutputRegB(OA_PIN_SOUTH);
 	if (vl53l1xInit(&devSOUTH, I2C1_DEV)) {
-		DEBUG_PRINT("Init SOUTH sensor [OK]\n");
+		DEBUG_PRINT("Init SOUTH sensor [OK]\n"); // OK
 	} else {
 		DEBUG_PRINT("Init SOUTH sensor [FAIL]\n");
 		//pass = false;
@@ -264,14 +262,14 @@ static bool oaTest() {
 	}
 	pca9555SetOutputRegB(OA_PIN_WFLAT);
 	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
-		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
+		DEBUG_PRINT("Init WFLAT sensor [OK]\n"); // OK
 	} else {
 		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
 		//pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_UPPER);
 	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
-		DEBUG_PRINT("Init UPPER sensor [OK]\n");
+		DEBUG_PRINT("Init UPPER sensor [OK]\n"); // OK
 	} else {
 		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
 		//pass = false;
