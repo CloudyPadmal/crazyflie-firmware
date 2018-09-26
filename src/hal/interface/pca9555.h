@@ -67,4 +67,6 @@ bool pca9555SetOutputRegB(uint32_t mask);
 bool pca9555ClearOutputRegA(uint32_t mask);
 bool pca9555ClearOutputRegB(uint32_t mask);
 
+void turnLEDON();
+
 #endif //__PCA9555_H__

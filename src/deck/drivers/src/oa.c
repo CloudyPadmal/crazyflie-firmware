@@ -35,11 +35,11 @@ static bool isTested = false;
 #define OA_PIN_NWEST  PCA9555_P01
 #define OA_PIN_UPPER  PCA9555_P17
 
-static VL53L1_Dev_t devNORTH; // 50 FIXME Removed
+static VL53L1_Dev_t devNORTH; // 50 FIXME
 static VL53L1_Dev_t devNEAST; // 51 FIXME
 static VL53L1_Dev_t devEFLAT; // 52 FIXME
 static VL53L1_Dev_t devEDOWN; // 53 FIXME
-static VL53L1_Dev_t devERISE; // 54 TODO Assemble
+static VL53L1_Dev_t devERISE; // 54 FIXME
 static VL53L1_Dev_t devSEAST; // 55 FUNCTIONAL
 static VL53L1_Dev_t devSOUTH; // 56 FIXME
 static VL53L1_Dev_t devSWEST; // 57 FIXME
@@ -68,18 +68,18 @@ static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
     VL53L1_RangingMeasurementData_t rangingData;
     uint8_t dataReady = 0;
     uint16_t range;
-    VL53L1_Error errs = 0;
+    //VL53L1_Error errs = 0;
 
     while (dataReady == 0) {
-    	errs = VL53L1_GetMeasurementDataReady(dev, &dataReady);
+    	/*errs = */VL53L1_GetMeasurementDataReady(dev, &dataReady);
         vTaskDelay(M2T(1));
     }
 
-    DEBUG_PRINT("Data ready error %d\n", errs);
+    //DEBUG_PRINT("Data ready error %d\n", errs);
 
     VL53L1_GetRangingMeasurementData(dev, &rangingData);
     range = rangingData.RangeMilliMeter;
-    DEBUG_PRINT(" -- Range --> %d\n", range);
+    //DEBUG_PRINT(" -- Range --> %d\n", range);
     VL53L1_StopMeasurement(dev);
     VL53L1_StartMeasurement(dev);
 
@@ -90,37 +90,37 @@ static void oaTask(void *param) {
 
 	systemWaitStart();
 
-	//VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);
-	/*VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);*/
-	/*VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);*/
-	/*VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);*/
+	VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);
+	VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);
+	VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);
+	VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
 	VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);
-	/*VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);*/
-	/*VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);*/
-	/*VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);*/
-	/*VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);*/
-	/*VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);*/
-	/*VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);*/
-	/*VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);*/
-	/*VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);*/
+	VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);
+	VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
+	VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);
+	VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
+	VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);
+	VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
+	VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);
+	VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
 
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		//rNORTH = oaGetMeasurementAndRestart(&devNORTH);
-		/*rNEAST = oaGetMeasurementAndRestart(&devNEAST);*/
-		/*rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);*/
-		/*rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);*/
+		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
+		rNEAST = oaGetMeasurementAndRestart(&devNEAST);
+		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
+		rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
 		rERISE = oaGetMeasurementAndRestart(&devERISE);
-		/*rSEAST = oaGetMeasurementAndRestart(&devSEAST);*/
-		/*rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);*/
-		/*rSWEST = oaGetMeasurementAndRestart(&devSWEST);*/
-		/*rWRISE = oaGetMeasurementAndRestart(&devWRISE);*/
-		/*rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);*/
-		/*rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);*/
-		/*rNWEST = oaGetMeasurementAndRestart(&devNWEST);*/
-		/*rUPPER = oaGetMeasurementAndRestart(&devUPPER);*/
+		rSEAST = oaGetMeasurementAndRestart(&devSEAST);
+		rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
+		rSWEST = oaGetMeasurementAndRestart(&devSWEST);
+		rWRISE = oaGetMeasurementAndRestart(&devWRISE);
+		rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
+		rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
+		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
+		rUPPER = oaGetMeasurementAndRestart(&devUPPER);
 	}
 }
 
@@ -182,6 +182,9 @@ static bool oaTest() {
 		return false;
 	}
 
+	pca9555SetOutputRegA(OA_PIN_LIGHT);
+	DEBUG_PRINT("Initiating ToF Setup!\n");
+
 	pca9555SetOutputRegA(OA_PIN_NWEST);
 	if (vl53l1xInit(&devNWEST, I2C1_DEV)) {
 		DEBUG_PRINT("Init NWEST sensor [OK]\n");
@@ -229,7 +232,7 @@ static bool oaTest() {
 		DEBUG_PRINT("Init SEAST sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init SEAST sensor [FAIL]\n");
-		pass = false;
+		//pass = false;
 	}
 
 	pca9555SetOutputRegB(OA_PIN_SOUTH);
@@ -251,29 +254,31 @@ static bool oaTest() {
 		DEBUG_PRINT("Init WRISE sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WRISE sensor [FAIL]\n");
-		pass = false;
+		//pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_WDOWN);
 	if (vl53l1xInit(&devWDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init WDOWN sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WDOWN sensor [FAIL]\n");
-		pass = false;
+		//pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_WFLAT);
 	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
-		pass = false;
+		//pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_UPPER);
 	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
 		DEBUG_PRINT("Init UPPER sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
-		pass = false;
+		//pass = false;
 	}
+	// Turn LED ON
+	turnLEDON();
 
 	isTested = true;
 

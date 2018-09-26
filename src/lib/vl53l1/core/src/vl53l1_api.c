@@ -1776,7 +1776,7 @@ VL53L1_Error VL53L1_StartMeasurement(VL53L1_DEV Dev)
 	if (Status == VL53L1_ERROR_NONE)
 		PALDevDataSet(Dev, PalState, VL53L1_STATE_RUNNING);
 
-	DEBUG_PRINT("Starting %d is %d\n", Dev->devAddr, Status);
+	//DEBUG_PRINT("Starting %d is %d\n", Dev->devAddr, Status);
 	LOG_FUNCTION_END(Status);
 	return Status;
 }
@@ -1794,7 +1794,7 @@ VL53L1_Error VL53L1_StopMeasurement(VL53L1_DEV Dev)
 		PALDevDataSet(Dev, PalState, VL53L1_STATE_IDLE);
 
 	LOG_FUNCTION_END(Status);
-	DEBUG_PRINT("Stopping %d is %d\n", Dev->devAddr, Status);
+	//DEBUG_PRINT("Stopping %d is %d\n", Dev->devAddr, Status);
 	return Status;
 }
 

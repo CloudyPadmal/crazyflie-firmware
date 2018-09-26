@@ -33,8 +33,6 @@ bool pca9555Test() {
 	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGA, &tb);
 	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGB, &tb);
 
-	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, PCA9555_P00);
-
 	return pass_set1 & pass_set2;
 }
 
@@ -52,6 +50,7 @@ bool pca9555SetOutputRegA(uint32_t mask) {
 
 	pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val);
 	val |= mask;
+	//DEBUG_PRINT("Writing %d to output Reg A\n", val);
 	pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val);
 
 	return pass;
@@ -63,6 +62,7 @@ bool pca9555SetOutputRegB(uint32_t mask) {
 
 	pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, &val);
 	val |= mask;
+	//DEBUG_PRINT("Writing %d to output Reg B\n", val);
 	pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, val);
 
 	return pass;
@@ -88,4 +88,13 @@ bool pca9555ClearOutputRegB(uint32_t mask) {
 	pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, val);
 
 	return pass;
+}
+
+void turnLEDON() {
+	uint8_t val;
+
+	i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val);
+	val = val - 1;
+	DEBUG_PRINT("Writing %d to output Reg A to turn LED ON\n", val);
+	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val);
 }
