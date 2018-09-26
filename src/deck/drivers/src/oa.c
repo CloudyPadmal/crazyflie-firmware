@@ -31,8 +31,9 @@
 #include "system.h"
 #include "debug.h"
 #include "log.h"
-#include "pca95x4.h"
-#include "vl53l0x.h"
+#include "pca9555.h"
+
+#include "vl53l1x.h"
 
 #include "i2cdev.h"
 
@@ -44,137 +45,252 @@
 static bool isInit = false;
 static bool isTested = false;
 
-#define OA_PIN_UP     PCA95X4_P0
-#define OA_PIN_FRONT  PCA95X4_P4
-#define OA_PIN_BACK   PCA95X4_P1
-#define OA_PIN_LEFT   PCA95X4_P6
-#define OA_PIN_RIGHT  PCA95X4_P2
+#define OA_PIN_LIGHT  PCA9555_P00
+#define OA_PIN_NORTH  PCA9555_P02
+#define OA_PIN_NEAST  PCA9555_P03
+#define OA_PIN_EFLAT  PCA9555_P04
+#define OA_PIN_EDOWN  PCA9555_P05
+#define OA_PIN_ERISE  PCA9555_P06
+#define OA_PIN_SEAST  PCA9555_P07
+#define OA_PIN_SOUTH  PCA9555_P10
+#define OA_PIN_SWEST  PCA9555_P11
+#define OA_PIN_WRISE  PCA9555_P12
+#define OA_PIN_WDOWN  PCA9555_P13
+#define OA_PIN_WFLAT  PCA9555_P14
+#define OA_PIN_NWEST  PCA9555_P01
+#define OA_PIN_UPPER  PCA9555_P17
 
-static VL53L0xDev devFront;
-static VL53L0xDev devBack;
-static VL53L0xDev devUp;
-static VL53L0xDev devLeft;
-static VL53L0xDev devRight;
+static VL53L1_Dev_t devNORTH; // 50
+static VL53L1_Dev_t devNEAST; // 51
+static VL53L1_Dev_t devEFLAT; // 52
+static VL53L1_Dev_t devEDOWN; // 53
+static VL53L1_Dev_t devERISE; // 54
+static VL53L1_Dev_t devSEAST; // 55
+static VL53L1_Dev_t devSOUTH; // 56
+static VL53L1_Dev_t devSWEST; // 57
+static VL53L1_Dev_t devWRISE; // 58
+static VL53L1_Dev_t devWDOWN; // 59
+static VL53L1_Dev_t devWFLAT; // 60
+static VL53L1_Dev_t devNWEST; // 49
+static VL53L1_Dev_t devUPPER; // 61
 
-static uint16_t rangeFront;
-static uint16_t rangeBack;
-static uint16_t rangeUp;
-static uint16_t rangeLeft;
-static uint16_t rangeRight;
+static uint16_t rNORTH;
+static uint16_t rNEAST;
+static uint16_t rEFLAT;
+static uint16_t rEDOWN;
+static uint16_t rERISE;
+static uint16_t rSEAST;
+static uint16_t rSOUTH;
+static uint16_t rSWEST;
+static uint16_t rWRISE;
+static uint16_t rWDOWN;
+static uint16_t rWFLAT;
+static uint16_t rNWEST;
+static uint16_t rUPPER;
 
-static void oaTask(void *param)
+static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
 {
-  systemWaitStart();
+    VL53L1_RangingMeasurementData_t rangingData;
+    uint8_t dataReady = 0;
+    uint16_t range;
 
-  vl53l0xStartContinuous(&devFront, 0);
-  vl53l0xStartContinuous(&devBack, 0);
-  vl53l0xStartContinuous(&devUp, 0);
-  vl53l0xStartContinuous(&devLeft, 0);
-  vl53l0xStartContinuous(&devRight, 0);
+    while (dataReady == 0) {
+    	VL53L1_GetMeasurementDataReady(dev, &dataReady);
+        vTaskDelay(M2T(1));
+    }
 
-  TickType_t lastWakeTime = xTaskGetTickCount();
+    VL53L1_GetRangingMeasurementData(dev, &rangingData);
+    range = rangingData.RangeMilliMeter;
+    VL53L1_StopMeasurement(dev);VL53L1_StartMeasurement(dev);
 
-  while(1) {
-    vTaskDelayUntil(&lastWakeTime, M2T(50));
-
-    rangeFront = vl53l0xReadRangeContinuousMillimeters(&devFront);
-    rangeBack = vl53l0xReadRangeContinuousMillimeters(&devBack);
-    rangeUp = vl53l0xReadRangeContinuousMillimeters(&devUp);
-    rangeLeft = vl53l0xReadRangeContinuousMillimeters(&devLeft);
-    rangeRight = vl53l0xReadRangeContinuousMillimeters(&devRight);
-  }
+    return range;
 }
 
-static void oaInit()
-{
-  if (isInit) {
-    return;
-  }
+static void oaTask(void *param) {
 
-  pca95x4Init();
+	systemWaitStart();
 
-  pca95x4ConfigOutput(~(OA_PIN_UP |
-                        OA_PIN_RIGHT |
-                        OA_PIN_LEFT |
-                        OA_PIN_FRONT |
-                        OA_PIN_BACK));
+	VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);
+	VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);
+	VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);
+	VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
+	VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);
+	VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);
+	VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
+	VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);
+	VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
+	VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);
+	VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
+	VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);
+	VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
 
-  pca95x4ClearOutput(OA_PIN_UP |
-                     OA_PIN_RIGHT |
-                     OA_PIN_LEFT |
-                     OA_PIN_FRONT |
-                     OA_PIN_BACK);
+	TickType_t lastWakeTime = xTaskGetTickCount();
 
-  isInit = true;
-
-  xTaskCreate(oaTask, "oa", 2*configMINIMAL_STACK_SIZE, NULL,
-              /*priority*/3, NULL);
+	while (1) {
+		vTaskDelayUntil(&lastWakeTime, M2T(50));
+		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
+		rNEAST = oaGetMeasurementAndRestart(&devNEAST);
+		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
+		rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
+		rERISE = oaGetMeasurementAndRestart(&devERISE);
+		rSEAST = oaGetMeasurementAndRestart(&devSEAST);
+		rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
+		rSWEST = oaGetMeasurementAndRestart(&devSWEST);
+		rWRISE = oaGetMeasurementAndRestart(&devWRISE);
+		rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
+		rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
+		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
+		rUPPER = oaGetMeasurementAndRestart(&devUPPER);
+	}
 }
 
-static bool oaTest()
-{
-  bool pass = isInit;
+static void oaInit() {
+	if (isInit) {
+		return;
+	}
+	// Initiate PCA Driver
+	pca9555Init();
+	// Output port configuration
+	pca9555ConfigOutputRegA(~(
+			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
+			OA_PIN_NEAST | OA_PIN_EFLAT | OA_PIN_EDOWN |
+			OA_PIN_ERISE | OA_PIN_SEAST
+	));
+	pca9555ConfigOutputRegB(~(
+			OA_PIN_SOUTH | OA_PIN_SWEST | OA_PIN_WRISE |
+			OA_PIN_WDOWN | OA_PIN_WFLAT | OA_PIN_UPPER
+	));
+	// Clear output ports
+	pca9555ClearOutputRegA(
+			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
+			OA_PIN_NEAST | OA_PIN_EFLAT | OA_PIN_EDOWN |
+			OA_PIN_ERISE | OA_PIN_SEAST
+	);
+	pca9555ClearOutputRegB(
+			OA_PIN_SOUTH | OA_PIN_SWEST | OA_PIN_WRISE |
+			OA_PIN_WDOWN | OA_PIN_WFLAT | OA_PIN_UPPER
+	);
 
-  if (isTested) {
-    DEBUG_PRINT("Cannot test OA deck a second time\n");
-    return false;
-  }
+	isInit = true;
+	DEBUG_PRINT("Initiated FYP bcOA Deck [OK]\n");
+	xTaskCreate(oaTask, "oa", 2 * configMINIMAL_STACK_SIZE, NULL, 3, NULL);
+}
 
-  pca95x4SetOutput(OA_PIN_FRONT);
-  if (vl53l0xInit(&devFront, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init front sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init front sensor [FAIL]\n");
-    pass = false;
-  }
+static bool oaTest() {
+	bool pass = isInit;
 
-  pca95x4SetOutput(OA_PIN_BACK);
-  if (vl53l0xInit(&devBack, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init back sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init back sensor [FAIL]\n");
-    pass = false;
-  }
+	if (isTested) {
+		DEBUG_PRINT("Cannot test FYP bcOA deck a second time\n");
+		return false;
+	}
 
-  pca95x4SetOutput(OA_PIN_UP);
-  if (vl53l0xInit(&devUp, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init up sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init up sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_LIGHT);
+	DEBUG_PRINT("Initiating ToF Setup!\n");
 
-  pca95x4SetOutput(OA_PIN_LEFT);
-  if (vl53l0xInit(&devLeft, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init left sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init left sensor [FAIL]\n");
-    pass = false;
-  }
+	pca9555SetOutputRegA(OA_PIN_NWEST);
+	if (vl53l1xInit(&devNWEST, I2C1_DEV)) {
+		DEBUG_PRINT("Init NWEST sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init NWEST sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_NORTH);
+	if (vl53l1xInit(&devNORTH, I2C1_DEV)) {
+		DEBUG_PRINT("Init NORTH sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init NORTH sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_NEAST);
+	if (vl53l1xInit(&devNEAST, I2C1_DEV)) {
+		DEBUG_PRINT("Init NEAST sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init NEAST sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_EFLAT);
+	if (vl53l1xInit(&devEFLAT, I2C1_DEV)) {
+		DEBUG_PRINT("Init EFLAT sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init EFLAT sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_EDOWN);
+	if (vl53l1xInit(&devEDOWN, I2C1_DEV)) {
+		DEBUG_PRINT("Init EDOWN sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init EDOWN sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_ERISE);
+	if (vl53l1xInit(&devERISE, I2C1_DEV)) {
+		DEBUG_PRINT("Init ERISE sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init ERISE sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegA(OA_PIN_SEAST);
+	if (vl53l1xInit(&devSEAST, I2C1_DEV)) {
+		DEBUG_PRINT("Init SEAST sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init SEAST sensor [FAIL]\n");
+		pass = false;
+	}
 
-  pca95x4SetOutput(OA_PIN_RIGHT);
-  if (vl53l0xInit(&devRight, I2C1_DEV, true)) {
-    DEBUG_PRINT("Init right sensor [OK]\n");
-  } else {
-    DEBUG_PRINT("Init right sensor [FAIL]\n");
-    pass = false;
-  }
-
-  isTested = true;
-
-  return pass;
+	pca9555SetOutputRegB(OA_PIN_SOUTH);
+	if (vl53l1xInit(&devSOUTH, I2C1_DEV)) {
+		DEBUG_PRINT("Init SOUTH sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init SOUTH sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegB(OA_PIN_SWEST);
+	if (vl53l1xInit(&devSWEST, I2C1_DEV)) {
+		DEBUG_PRINT("Init SWEST sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init SWEST sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegB(OA_PIN_WRISE);
+	if (vl53l1xInit(&devWRISE, I2C1_DEV)) {
+		DEBUG_PRINT("Init WRISE sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init WRISE sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegB(OA_PIN_WDOWN);
+	if (vl53l1xInit(&devWDOWN, I2C1_DEV)) {
+		DEBUG_PRINT("Init WDOWN sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init WDOWN sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegB(OA_PIN_WFLAT);
+	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
+		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
+		pass = false;
+	}
+	pca9555SetOutputRegB(OA_PIN_UPPER);
+	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
+		DEBUG_PRINT("Init UPPER sensor [OK]\n");
+	} else {
+		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
+		pass = false;
+	}
+	// Turn LED ON
+	turnLEDON();
+	isTested = true;
+	return pass;
 }
 
 static const DeckDriver oa_deck = {
-  .vid = 0xBC,
-  .pid = 0x0B,
-  .name = "bcOA",
-
-  .usedGpio = 0,  // FIXME: set the used pins
-
-  .init = oaInit,
-  .test = oaTest,
-};
+		.vid = 0xBC,
+		.pid = 0x0B,
+		.name = "bcOA",
+		.usedGpio = 0,
+		.init = oaInit, .test = oaTest, };
 
 DECK_DRIVER(oa_deck);
 
@@ -183,9 +299,17 @@ PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcOA, &isInit)
 PARAM_GROUP_STOP(deck)
 
 LOG_GROUP_START(oa)
-LOG_ADD(LOG_UINT16, front, &rangeFront)
-LOG_ADD(LOG_UINT16, back, &rangeBack)
-LOG_ADD(LOG_UINT16, up, &rangeUp)
-LOG_ADD(LOG_UINT16, left, &rangeLeft)
-LOG_ADD(LOG_UINT16, right, &rangeRight)
+LOG_ADD(LOG_UINT16, NORTH, &rNORTH)
+LOG_ADD(LOG_UINT16, NEAST, &rNEAST)
+LOG_ADD(LOG_UINT16, EFLAT, &rEFLAT)
+LOG_ADD(LOG_UINT16, EDOWN, &rEDOWN)
+LOG_ADD(LOG_UINT16, ERISE, &rERISE)
+LOG_ADD(LOG_UINT16, SEAST, &rSEAST)
+LOG_ADD(LOG_UINT16, SOUTH, &rSOUTH)
+LOG_ADD(LOG_UINT16, SWEST, &rSWEST)
+LOG_ADD(LOG_UINT16, WRISE, &rWRISE)
+LOG_ADD(LOG_UINT16, WDOWN, &rWDOWN)
+LOG_ADD(LOG_UINT16, WFLAT, &rWFLAT)
+LOG_ADD(LOG_UINT16, NWEST, &rNWEST)
+LOG_ADD(LOG_UINT16, UPPER, &rUPPER)
 LOG_GROUP_STOP(oa)
