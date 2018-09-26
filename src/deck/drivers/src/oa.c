@@ -68,20 +68,15 @@ static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
     VL53L1_RangingMeasurementData_t rangingData;
     uint8_t dataReady = 0;
     uint16_t range;
-    //VL53L1_Error errs = 0;
 
     while (dataReady == 0) {
-    	/*errs = */VL53L1_GetMeasurementDataReady(dev, &dataReady);
+    	VL53L1_GetMeasurementDataReady(dev, &dataReady);
         vTaskDelay(M2T(1));
     }
 
-    //DEBUG_PRINT("Data ready error %d\n", errs);
-
     VL53L1_GetRangingMeasurementData(dev, &rangingData);
     range = rangingData.RangeMilliMeter;
-    //DEBUG_PRINT(" -- Range --> %d\n", range);
-    VL53L1_StopMeasurement(dev);
-    VL53L1_StartMeasurement(dev);
+    VL53L1_StopMeasurement(dev);VL53L1_StartMeasurement(dev);
 
     return range;
 }

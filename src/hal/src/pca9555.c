@@ -3,11 +3,8 @@
 #define DEBUG_MODULE "PCA9555"
 
 #include "i2cdev.h"
-
 #include "pca9555.h"
-
 #include "debug.h"
-
 #include "task.h"
 
 static uint8_t devAddr;
@@ -50,7 +47,6 @@ bool pca9555SetOutputRegA(uint32_t mask) {
 
 	pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val);
 	val |= mask;
-	//DEBUG_PRINT("Writing %d to output Reg A\n", val);
 	pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val);
 
 	return pass;
@@ -62,7 +58,6 @@ bool pca9555SetOutputRegB(uint32_t mask) {
 
 	pass = i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, &val);
 	val |= mask;
-	//DEBUG_PRINT("Writing %d to output Reg B\n", val);
 	pass = i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGB, val);
 
 	return pass;
@@ -95,6 +90,5 @@ void turnLEDON() {
 
 	i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val);
 	val = val - 1;
-	DEBUG_PRINT("Writing %d to output Reg A to turn LED ON\n", val);
 	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val);
 }
