@@ -35,19 +35,19 @@ static bool isTested = false;
 #define OA_PIN_NWEST  PCA9555_P01
 #define OA_PIN_UPPER  PCA9555_P17
 
-static VL53L1_Dev_t devNORTH; // 50 FIXME
-static VL53L1_Dev_t devNEAST; // 51 FIXME
-static VL53L1_Dev_t devEFLAT; // 52 FIXME
-static VL53L1_Dev_t devEDOWN; // 53 FIXME
-static VL53L1_Dev_t devERISE; // 54 FIXME
-static VL53L1_Dev_t devSEAST; // 55 FUNCTIONAL
-static VL53L1_Dev_t devSOUTH; // 56 FIXME
-static VL53L1_Dev_t devSWEST; // 57 FIXME
-static VL53L1_Dev_t devWRISE; // 58 FUNCTIONAL
-static VL53L1_Dev_t devWDOWN; // 59 FUNCTIONAL
-static VL53L1_Dev_t devWFLAT; // 60 FUNCTIONAL
-static VL53L1_Dev_t devNWEST; // 49 FIXME
-static VL53L1_Dev_t devUPPER; // 61 FUNCTIONAL
+static VL53L1_Dev_t devNORTH; // 50
+static VL53L1_Dev_t devNEAST; // 51
+static VL53L1_Dev_t devEFLAT; // 52
+static VL53L1_Dev_t devEDOWN; // 53
+static VL53L1_Dev_t devERISE; // 54
+static VL53L1_Dev_t devSEAST; // 55
+static VL53L1_Dev_t devSOUTH; // 56
+static VL53L1_Dev_t devSWEST; // 57
+static VL53L1_Dev_t devWRISE; // 58
+static VL53L1_Dev_t devWDOWN; // 59
+static VL53L1_Dev_t devWFLAT; // 60
+static VL53L1_Dev_t devNWEST; // 49
+static VL53L1_Dev_t devUPPER; // 61
 
 static uint16_t rNORTH;
 static uint16_t rNEAST;
@@ -190,49 +190,49 @@ static bool oaTest() {
 		DEBUG_PRINT("Init NWEST sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init NWEST sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_NORTH);
 	if (vl53l1xInit(&devNORTH, I2C1_DEV)) {
 		DEBUG_PRINT("Init NORTH sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init NORTH sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_NEAST);
 	if (vl53l1xInit(&devNEAST, I2C1_DEV)) {
 		DEBUG_PRINT("Init NEAST sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init NEAST sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_EFLAT);
 	if (vl53l1xInit(&devEFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init EFLAT sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init EFLAT sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_EDOWN);
 	if (vl53l1xInit(&devEDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init EDOWN sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init EDOWN sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_ERISE);
 	if (vl53l1xInit(&devERISE, I2C1_DEV)) {
 		DEBUG_PRINT("Init ERISE sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init ERISE sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegA(OA_PIN_SEAST);
 	if (vl53l1xInit(&devSEAST, I2C1_DEV)) {
 		DEBUG_PRINT("Init SEAST sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init SEAST sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 
 	pca9555SetOutputRegB(OA_PIN_SOUTH);
@@ -240,42 +240,42 @@ static bool oaTest() {
 		DEBUG_PRINT("Init SOUTH sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init SOUTH sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_SWEST);
 	if (vl53l1xInit(&devSWEST, I2C1_DEV)) {
 		DEBUG_PRINT("Init SWEST sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init SWEST sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_WRISE);
 	if (vl53l1xInit(&devWRISE, I2C1_DEV)) {
 		DEBUG_PRINT("Init WRISE sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WRISE sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_WDOWN);
 	if (vl53l1xInit(&devWDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init WDOWN sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WDOWN sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_WFLAT);
 	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	pca9555SetOutputRegB(OA_PIN_UPPER);
 	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
 		DEBUG_PRINT("Init UPPER sensor [OK]\n");
 	} else {
 		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
-		//pass = false;
+		pass = false;
 	}
 	// Turn LED ON
 	turnLEDON();
