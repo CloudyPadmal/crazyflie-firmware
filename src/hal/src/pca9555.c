@@ -10,23 +10,21 @@
 static uint8_t devAddr;
 static I2C_Dev *I2Cx;
 
-bool pca9555Init() {
+void pca9555Init() {
 	i2cdevInit(I2C1_DEV);
 	I2Cx = I2C1_DEV;
 	devAddr = PCA9555_DEFAULT_ADDRESS;
-
-	return pca9555Test();
 }
 
 /**
- * Reads the config register and checks if there is any error in reading
- * the register
+ * Reads the config registers and checks if there are any errors in reading
+ * the registers
  */
 bool pca9555Test() {
 	uint8_t tb;
 	bool pass_set1, pass_set2;
 
-	// Test reading the config register
+	// Test reading the config registers
 	pass_set1 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGA, &tb);
 	pass_set2 = i2cdevReadByte(I2Cx, devAddr, PCA9555_CONFIG_REGB, &tb);
 

@@ -44,7 +44,7 @@
 /**
  * Initialize the PCA9555 sub-system.
  */
-bool pca9555Init();
+void pca9555Init();
 
 /**
  * Test the PCA9555 sub-system.

@@ -5,9 +5,9 @@
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
  *
- * Crazyflie control firmware
+ * Crazyflie Firmware
  *
- * Copyright (C) 2011-2018 Bitcraze AB
+ * Copyright (C) 2018 Bitcraze AB
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * outlierFilter.h: Outlier rejection filter for the LPS system
+ * ranges.h: Centralize range measurements for different directions
+ *           and make them available as log
  */
 
-#ifndef __OUTLIER_FILTER_H__
-#define __OUTLIER_FILTER_H__
+#pragma once
 
-#include "stabilizer_types.h"
+typedef enum {
+    rangeFront=0,
+    rangeBack,
+    rangeLeft,
+    rangeRight,
+    rangeUp,
+    rangeDown,
+    RANGE_T_END,
+} rangeDirection_t;
 
-bool outlierFilterValidateTdoa(tdoaMeasurement_t* tdoa);
-void outlierFilterReset();
+/**
+ * Set the range for a certain direction
+ * 
+ * @param direction Direction of the range
+ * @param range_m Distance to an object in meter
+ */
+void rangeSet(rangeDirection_t direction, float range_m);
 
-#endif // __OUTLIER_FILTER_H__
+/**
+ * Get the range for a certain direction
+ * 
+ * @param direction Direction of the range
+ * @return Distance to an object in meter
+ */
+float rangeGet(rangeDirection_t direction);
