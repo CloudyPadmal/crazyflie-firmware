@@ -88,6 +88,20 @@ static uint16_t rWFLAT;
 static uint16_t rNWEST;
 static uint16_t rUPPER;
 
+static void setupROIs(VL53L1_Dev_t *dev, int lx, int ly, int rx, int ry)
+{
+	VL53L1_CalibrationData_t d;
+	VL53L1_GetCalibrationData(&devUPPER, &d);
+	DEBUG_PRINT("Optical Center Decimal (%u, %u)\n", d.optical_centre.x_centre, d.optical_centre.y_centre);
+	VL53L1_UserRoi_t t;
+	t.TopLeftX = lx;
+	t.TopLeftY = ly;
+	t.BotRightX = rx;
+	t.BotRightY = ry;
+	VL53L1_SetUserROI(dev, &t);
+	VL53L1_SetDistanceMode(dev, VL53L1_DISTANCEMODE_MEDIUM);
+}
+
 static uint16_t oaGetMeasurementAndRestart(VL53L1_Dev_t *dev)
 {
     VL53L1_RangingMeasurementData_t rangingData;
@@ -190,6 +204,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_NWEST);
 	if (vl53l1xInit(&devNWEST, I2C1_DEV)) {
 		DEBUG_PRINT("Init NWEST sensor [OK]\n");
+		setupROIs(&devNWEST, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init NWEST sensor [FAIL]\n");
 		pass = false;
@@ -197,6 +212,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_NORTH);
 	if (vl53l1xInit(&devNORTH, I2C1_DEV)) {
 		DEBUG_PRINT("Init NORTH sensor [OK]\n");
+		setupROIs(&devNORTH, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init NORTH sensor [FAIL]\n");
 		pass = false;
@@ -204,6 +220,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_NEAST);
 	if (vl53l1xInit(&devNEAST, I2C1_DEV)) {
 		DEBUG_PRINT("Init NEAST sensor [OK]\n");
+		setupROIs(&devNEAST, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init NEAST sensor [FAIL]\n");
 		pass = false;
@@ -211,6 +228,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_EFLAT);
 	if (vl53l1xInit(&devEFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init EFLAT sensor [OK]\n");
+		setupROIs(&devEFLAT, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init EFLAT sensor [FAIL]\n");
 		pass = false;
@@ -218,6 +236,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_EDOWN);
 	if (vl53l1xInit(&devEDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init EDOWN sensor [OK]\n");
+		setupROIs(&devEDOWN, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init EDOWN sensor [FAIL]\n");
 		pass = false;
@@ -225,6 +244,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_ERISE);
 	if (vl53l1xInit(&devERISE, I2C1_DEV)) {
 		DEBUG_PRINT("Init ERISE sensor [OK]\n");
+		setupROIs(&devERISE, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init ERISE sensor [FAIL]\n");
 		pass = false;
@@ -232,6 +252,7 @@ static bool oaTest() {
 	pca9555SetOutputRegA(OA_PIN_SEAST);
 	if (vl53l1xInit(&devSEAST, I2C1_DEV)) {
 		DEBUG_PRINT("Init SEAST sensor [OK]\n");
+		setupROIs(&devSEAST, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init SEAST sensor [FAIL]\n");
 		pass = false;
@@ -240,6 +261,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_SOUTH);
 	if (vl53l1xInit(&devSOUTH, I2C1_DEV)) {
 		DEBUG_PRINT("Init SOUTH sensor [OK]\n");
+		setupROIs(&devSOUTH, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init SOUTH sensor [FAIL]\n");
 		pass = false;
@@ -247,6 +269,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_SWEST);
 	if (vl53l1xInit(&devSWEST, I2C1_DEV)) {
 		DEBUG_PRINT("Init SWEST sensor [OK]\n");
+		setupROIs(&devSWEST, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init SWEST sensor [FAIL]\n");
 		pass = false;
@@ -254,6 +277,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_WRISE);
 	if (vl53l1xInit(&devWRISE, I2C1_DEV)) {
 		DEBUG_PRINT("Init WRISE sensor [OK]\n");
+		setupROIs(&devWRISE, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init WRISE sensor [FAIL]\n");
 		pass = false;
@@ -261,6 +285,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_WDOWN);
 	if (vl53l1xInit(&devWDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init WDOWN sensor [OK]\n");
+		setupROIs(&devWDOWN, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init WDOWN sensor [FAIL]\n");
 		pass = false;
@@ -268,6 +293,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_WFLAT);
 	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
+		setupROIs(&devWFLAT, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
 		pass = false;
@@ -275,6 +301,7 @@ static bool oaTest() {
 	pca9555SetOutputRegB(OA_PIN_UPPER);
 	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
 		DEBUG_PRINT("Init UPPER sensor [OK]\n");
+		setupROIs(&devUPPER, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
 		pass = false;
