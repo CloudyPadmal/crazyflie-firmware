@@ -33,7 +33,8 @@ static bool isTested = false;
 static float ambientTemperature;
 static float maxTemp;
 static uint8_t severity;
-//static const float heatSourceTemperature = 28;
+static uint8_t heatLevel;
+static const float heatSourceTemperature = 30;
 
 static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
 static uint32_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
@@ -59,6 +60,7 @@ static void checkPixelsForThreshold() {
 	int stepIndex = 0;
 	maxTemp = 0;
 	severity = 0;
+	heatLevel = 0;
 	// Populate pixel row values
 	for (int i = 0; i < 8; i++) {
 		pixelRows[i] = 0;
@@ -72,6 +74,9 @@ static void checkPixelsForThreshold() {
 		if (currentPixelTemperature > ambientTemperature) {
 			severity++;
 			bitwise = 1 << (7 - step);
+		}
+		if (currentPixelTemperature > heatSourceTemperature) {
+			heatLevel++;
 		}
 		pixelRows[stepIndex] = pixelRows[stepIndex] | bitwise;
 		step++;
@@ -134,14 +139,6 @@ LOG_ADD(LOG_UINT32, PIXEL_ROW_04, &(pixelRows[4]))
 LOG_ADD(LOG_UINT32, PIXEL_ROW_05, &(pixelRows[5]))
 LOG_ADD(LOG_UINT32, PIXEL_ROW_06, &(pixelRows[6]))
 LOG_ADD(LOG_UINT32, PIXEL_ROW_07, &(pixelRows[7]))
-LOG_ADD(LOG_UINT8, SEVERITY, &severity)/*
-LOG_ADD(LOG_FLOAT, PIXEL_00, &(pixels[0]))
-LOG_ADD(LOG_FLOAT, PIXEL_01, &(pixels[1]))
-LOG_ADD(LOG_FLOAT, PIXEL_02, &(pixels[2]))
-LOG_ADD(LOG_FLOAT, PIXEL_03, &(pixels[13]))
-LOG_ADD(LOG_FLOAT, PIXEL_04, &(pixels[24]))
-LOG_ADD(LOG_FLOAT, PIXEL_05, &(pixels[35]))
-LOG_ADD(LOG_FLOAT, PIXEL_06, &(pixels[46]))
-LOG_ADD(LOG_FLOAT, PIXEL_07, &(pixels[57]))
-LOG_ADD(LOG_FLOAT, PIXEL_08, &(pixels[63]))*/
+LOG_ADD(LOG_UINT8, SEVERITY, &severity)
+LOG_ADD(LOG_UINT8, HEAT_LEVEL, &heatLevel)
 LOG_GROUP_STOP(tc)
