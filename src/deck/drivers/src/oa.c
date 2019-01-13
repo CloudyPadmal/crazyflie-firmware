@@ -92,7 +92,6 @@ static void setupROIs(VL53L1_Dev_t *dev, int lx, int ly, int rx, int ry)
 {
 	VL53L1_CalibrationData_t d;
 	VL53L1_GetCalibrationData(dev, &d);
-	DEBUG_PRINT("Optical Center Decimal (%u, %u)\n", d.optical_centre.x_centre, d.optical_centre.y_centre);
 	VL53L1_UserRoi_t t;
 	t.TopLeftX = lx;
 	t.TopLeftY = ly;

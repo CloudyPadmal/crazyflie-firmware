@@ -23,8 +23,7 @@
 
 #include <stdlib.h>
 
-static float processThermalSensorReadings(float* arr);
-static float getMaxTemperatureValue(float* array);
+static void checkPixelsForThreshold(void);
 
 static AMG8833_Dev_t devAMG8833;
 
@@ -33,8 +32,11 @@ static bool isTested = false;
 
 static float ambientTemperature;
 static float maxTemp;
+static uint8_t severity;
+//static const float heatSourceTemperature = 28;
 
 static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
+static uint32_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
 
 static void tcTask(void *param) {
 
@@ -47,30 +49,41 @@ static void tcTask(void *param) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
 		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
 		ambientTemperature = readThermistor(&devAMG8833);
-		maxTemp = processThermalSensorReadings(pixels);
+		checkPixelsForThreshold();
 	}
 }
 
-static float processThermalSensorReadings(float* arr) {
-	// 1. Scan pixel array for high values of temperature
-	float maxTempInPixels = getMaxTemperatureValue(arr);
-	// 2. Check against ambient temperature
-	if (maxTempInPixels > ambientTemperature) {
-		// 3. Notify that there is a heat object in the vicinity
-		// 4. Estimate position of the heat object
-		// 5. Pass position value
+static void checkPixelsForThreshold() {
+	// Initiate iterators
+	int step = 0;
+	int stepIndex = 0;
+	maxTemp = 0;
+	severity = 0;
+	// Populate pixel row values
+	for (int i = 0; i < 8; i++) {
+		pixelRows[i] = 0;
 	}
-	return maxTempInPixels;
-}
-
-static float getMaxTemperatureValue(float* array) {
-	float maxValue = 0;
+	// Iterate through each pixel and filter out
 	for (int i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
-		if (maxValue < array[i]) {
-			maxValue = array[i];
+		// Get current temperature value
+		float currentPixelTemperature = pixels[i];
+		// Prepare a value for bitwise operation
+		int bitwise = 0;
+		if (currentPixelTemperature > ambientTemperature) {
+			severity++;
+			bitwise = 1 << (7 - step);
+		}
+		pixelRows[stepIndex] = pixelRows[stepIndex] | bitwise;
+		step++;
+		if (step == 8) {
+			step = 0;
+			stepIndex++;
+		}
+		// Check for maximum temperature
+		if (maxTemp < currentPixelTemperature) {
+			maxTemp = currentPixelTemperature;
 		}
 	}
-	return maxValue;
 }
 
 static void tcInit() {
@@ -113,6 +126,15 @@ PARAM_GROUP_STOP(deck)
 LOG_GROUP_START(tc)
 LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
 LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)
+LOG_ADD(LOG_UINT32, PIXEL_ROW_00, &(pixelRows[0]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_01, &(pixelRows[1]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_02, &(pixelRows[2]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_03, &(pixelRows[3]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_04, &(pixelRows[4]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_05, &(pixelRows[5]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_06, &(pixelRows[6]))
+LOG_ADD(LOG_UINT32, PIXEL_ROW_07, &(pixelRows[7]))
+LOG_ADD(LOG_UINT8, SEVERITY, &severity)/*
 LOG_ADD(LOG_FLOAT, PIXEL_00, &(pixels[0]))
 LOG_ADD(LOG_FLOAT, PIXEL_01, &(pixels[1]))
 LOG_ADD(LOG_FLOAT, PIXEL_02, &(pixels[2]))
@@ -121,5 +143,5 @@ LOG_ADD(LOG_FLOAT, PIXEL_04, &(pixels[24]))
 LOG_ADD(LOG_FLOAT, PIXEL_05, &(pixels[35]))
 LOG_ADD(LOG_FLOAT, PIXEL_06, &(pixels[46]))
 LOG_ADD(LOG_FLOAT, PIXEL_07, &(pixels[57]))
-LOG_ADD(LOG_FLOAT, PIXEL_08, &(pixels[63]))
+LOG_ADD(LOG_FLOAT, PIXEL_08, &(pixels[63]))*/
 LOG_GROUP_STOP(tc)
