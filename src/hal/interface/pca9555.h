@@ -85,4 +85,9 @@ bool pca9555SetOutputRegB(uint32_t mask);
 bool pca9555ClearOutputRegA(uint32_t mask);
 bool pca9555ClearOutputRegB(uint32_t mask);
 
+/**
+ * Turns LED on to indicate deck has initiated successfully.
+ */
+void turnLEDON();
+
 #endif //__PCA9555_H__

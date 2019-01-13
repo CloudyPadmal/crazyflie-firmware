@@ -114,3 +114,12 @@ bool pca9555ClearOutputRegB(uint32_t mask)
 
   return pass;
 }
+
+void turnLEDON()
+{
+	uint8_t val;
+
+	i2cdevReadByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, &val);
+	val = val - 1;
+	i2cdevWriteByte(I2Cx, devAddr, PCA9555_OUTPUT_REGA, val);
+}
