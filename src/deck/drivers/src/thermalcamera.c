@@ -23,12 +23,16 @@
 
 #include <stdlib.h>
 
+static float processThermalSensorReadings(float* arr);
+static float getMaxTemperatureValue(float* array);
+
 static AMG8833_Dev_t devAMG8833;
 
 static bool isInit = false;
 static bool isTested = false;
 
-static float temperature;
+static float ambientTemperature;
+static float maxTemp;
 
 static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
 
@@ -42,8 +46,31 @@ static void tcTask(void *param) {
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(50));
 		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
-		temperature = readThermistor(&devAMG8833);
+		ambientTemperature = readThermistor(&devAMG8833);
+		maxTemp = processThermalSensorReadings(pixels);
 	}
+}
+
+static float processThermalSensorReadings(float* arr) {
+	// 1. Scan pixel array for high values of temperature
+	float maxTempInPixels = getMaxTemperatureValue(arr);
+	// 2. Check against ambient temperature
+	if (maxTempInPixels > ambientTemperature) {
+		// 3. Notify that there is a heat object in the vicinity
+		// 4. Estimate position of the heat object
+		// 5. Pass position value
+	}
+	return maxTempInPixels;
+}
+
+static float getMaxTemperatureValue(float* array) {
+	float maxValue = 0;
+	for (int i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
+		if (maxValue < array[i]) {
+			maxValue = array[i];
+		}
+	}
+	return maxValue;
 }
 
 static void tcInit() {
@@ -84,7 +111,8 @@ PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcThermal, &isInit)
 PARAM_GROUP_STOP(deck)
 
 LOG_GROUP_START(tc)
-LOG_ADD(LOG_FLOAT, TEMPERATURE, &temperature)
+LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
+LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)
 LOG_ADD(LOG_FLOAT, PIXEL_00, &(pixels[0]))
 LOG_ADD(LOG_FLOAT, PIXEL_01, &(pixels[1]))
 LOG_ADD(LOG_FLOAT, PIXEL_02, &(pixels[2]))
