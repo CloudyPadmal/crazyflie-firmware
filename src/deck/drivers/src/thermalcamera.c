@@ -40,7 +40,6 @@ static bool isTested = false;
 
 static float ambientTemperature;
 static float maxTemp;
-// Side will be 4 for left, 5 for middle, 6 for right
 static uint8_t side;
 // This will be 1 for detection and 0 for non
 static uint8_t heatSourceDetected;
