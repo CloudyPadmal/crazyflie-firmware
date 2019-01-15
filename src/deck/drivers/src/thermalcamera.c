@@ -46,7 +46,7 @@ static uint8_t heatSourceDetected;
 static uint8_t heatLevel;
 
 
-static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
+//static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
 /* =======================
  * <-Camera faced this way
  * =======================
@@ -66,21 +66,22 @@ static void tcTask(void *param) {
 
 	systemWaitStart();
 	clearInterrupt(&devAMG8833);
-
+	checkPixelsForThreshold();
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
-		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
+		vTaskDelayUntil(&lastWakeTime, M2T(10));
+		// Uncommented following
+		//readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
 		ambientTemperature = readThermistor(&devAMG8833);
-		checkPixelsForThreshold();
+		//checkPixelsForThreshold();
 	}
 }
 
 static void checkPixelsForThreshold() {
 	// Initiate iterators
-	int step = 0;
-	int stepIndex = 0;
+	//int step = 0;
+	//int stepIndex = 0;
 	maxTemp = 0;
 	heatLevel = 0;
 	side = 0;
@@ -91,7 +92,8 @@ static void checkPixelsForThreshold() {
 		pixelRows01To08[i] = 0;
 	}
 	// Iterate through each pixel and filter out
-	for (int i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
+	// Uncommented following
+	/*for (int i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
 		// Get current temperature value
 		float currentPixelTemperature = pixels[i];
 		// Prepare a value for bitwise operation
@@ -124,7 +126,7 @@ static void checkPixelsForThreshold() {
 		} else {
 			side = MIDDLE;
 		}
-	}
+	}*/
 }
 
 static void tcInit() {
