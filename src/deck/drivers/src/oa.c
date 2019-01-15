@@ -45,7 +45,7 @@
 static bool isInit = false;
 static bool isTested = false;
 
-#define OA_PIN_LIGHT  PCA9555_P00
+/*#define OA_PIN_LIGHT  PCA9555_P00*/
 #define OA_PIN_NORTH  PCA9555_P02
 #define OA_PIN_NEAST  PCA9555_P03
 #define OA_PIN_EFLAT  PCA9555_P04
@@ -165,7 +165,7 @@ static void oaInit() {
 	pca9555Init();
 	// Output port configuration
 	pca9555ConfigOutputRegA(~(
-			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
+			/*OA_PIN_LIGHT |*/ OA_PIN_NWEST | OA_PIN_NORTH |
 			OA_PIN_NEAST | OA_PIN_EFLAT | /*OA_PIN_EDOWN |*/
 			/*OA_PIN_ERISE |*/ OA_PIN_SEAST
 	));
@@ -175,7 +175,7 @@ static void oaInit() {
 	));
 	// Clear output ports
 	pca9555ClearOutputRegA(
-			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
+			/*OA_PIN_LIGHT |*/ OA_PIN_NWEST | OA_PIN_NORTH |
 			OA_PIN_NEAST | OA_PIN_EFLAT | /*OA_PIN_EDOWN |*/
 			/*OA_PIN_ERISE |*/ OA_PIN_SEAST
 	);
@@ -197,7 +197,7 @@ static bool oaTest() {
 		return false;
 	}
 
-	pca9555SetOutputRegA(OA_PIN_LIGHT);
+	/*pca9555SetOutputRegA(OA_PIN_LIGHT);*/
 	DEBUG_PRINT("Initiating ToF Setup!\n");
 
 	pca9555SetOutputRegA(OA_PIN_NWEST);
