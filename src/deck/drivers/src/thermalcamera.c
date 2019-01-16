@@ -23,21 +23,21 @@
 
 #include <stdlib.h>
 
-/*static void checkPixelsForThreshold(void);*/
+static void checkPixelsForThreshold(void);
 
 static AMG8833_Dev_t devAMG8833;
 
 static bool isInit = false;
 static bool isTested = false;
 
-/*static float ambientTemperature;
+static float ambientTemperature;
 static float maxTemp;
-static uint8_t heatLevel;*/
-/*static const float heatSourceTemperature = 29;*/
+static uint8_t heatLevel;
+static const float heatSourceTemperature = 29;
 
 static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
-/*static uint8_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
-static uint8_t pixelTempCounts[AMG88xx_PIXEL_ARRAY_SIZE / 8];*/
+static uint8_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
+static uint8_t pixelTempCounts[AMG88xx_PIXEL_ARRAY_SIZE / 8];
 
 static void tcTask(void *param) {
 
@@ -49,12 +49,12 @@ static void tcTask(void *param) {
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(10));
 		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
-		/*ambientTemperature = readThermistor(&devAMG8833);
-		checkPixelsForThreshold();*/
+		ambientTemperature = readThermistor(&devAMG8833);
+		checkPixelsForThreshold();
 	}
 }
 
-/*static void checkPixelsForThreshold() {
+static void checkPixelsForThreshold() {
 	// Initiate iterators
 	int step = 0;
 	int stepIndex = 0;
@@ -87,7 +87,7 @@ static void tcTask(void *param) {
 			maxTemp = currentPixelTemperature;
 		}
 	}
-}*/
+}
 
 static void tcInit() {
 	if (isInit) {
@@ -135,8 +135,8 @@ LOG_ADD(LOG_FLOAT, PPP05, &(pixels[4]))
 LOG_ADD(LOG_FLOAT, PPP06, &(pixels[5]))
 LOG_ADD(LOG_FLOAT, PPP07, &(pixels[6]))
 LOG_ADD(LOG_FLOAT, PPP08, &(pixels[7]))
-/*LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
-LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)*//*
+LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
+LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)/*
 LOG_ADD(LOG_UINT8, PIXEL_ROW_00, &(pixelRows[0]))
 LOG_ADD(LOG_UINT8, PIXEL_ROW_01, &(pixelRows[1]))
 LOG_ADD(LOG_UINT8, PIXEL_ROW_02, &(pixelRows[2]))
@@ -153,5 +153,5 @@ LOG_ADD(LOG_UINT8, PIXEL_TOT_04, &(pixelTempCounts[4]))
 LOG_ADD(LOG_UINT8, PIXEL_TOT_05, &(pixelTempCounts[5]))
 LOG_ADD(LOG_UINT8, PIXEL_TOT_06, &(pixelTempCounts[6]))
 LOG_ADD(LOG_UINT8, PIXEL_TOT_07, &(pixelTempCounts[7]))*/
-/*LOG_ADD(LOG_UINT8, HEAT_LEVEL, &heatLevel)*/
+LOG_ADD(LOG_UINT8, HEAT_LEVEL, &heatLevel)
 LOG_GROUP_STOP(tc)
