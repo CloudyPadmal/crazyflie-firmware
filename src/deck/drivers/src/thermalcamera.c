@@ -35,8 +35,8 @@ static float maxTemp;
 static uint8_t heatLevel;*/
 /*static const float heatSourceTemperature = 29;*/
 
-/*static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
-static uint8_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
+static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
+/*static uint8_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
 static uint8_t pixelTempCounts[AMG88xx_PIXEL_ARRAY_SIZE / 8];*/
 
 static void tcTask(void *param) {
@@ -48,8 +48,8 @@ static void tcTask(void *param) {
 
 	while (1) {
 		vTaskDelayUntil(&lastWakeTime, M2T(10));
-		/*readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
-		ambientTemperature = readThermistor(&devAMG8833);
+		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
+		/*ambientTemperature = readThermistor(&devAMG8833);
 		checkPixelsForThreshold();*/
 	}
 }
@@ -127,6 +127,14 @@ PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcThermal, &isInit)
 PARAM_GROUP_STOP(deck)
 
 LOG_GROUP_START(tc)
+LOG_ADD(LOG_FLOAT, PPP01, &(pixels[0]))
+LOG_ADD(LOG_FLOAT, PPP02, &(pixels[1]))
+LOG_ADD(LOG_FLOAT, PPP03, &(pixels[2]))
+LOG_ADD(LOG_FLOAT, PPP04, &(pixels[3]))
+LOG_ADD(LOG_FLOAT, PPP05, &(pixels[4]))
+LOG_ADD(LOG_FLOAT, PPP06, &(pixels[5]))
+LOG_ADD(LOG_FLOAT, PPP07, &(pixels[6]))
+LOG_ADD(LOG_FLOAT, PPP08, &(pixels[7]))
 /*LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
 LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)*//*
 LOG_ADD(LOG_UINT8, PIXEL_ROW_00, &(pixelRows[0]))
