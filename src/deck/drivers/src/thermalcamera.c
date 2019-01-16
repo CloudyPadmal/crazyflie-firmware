@@ -23,21 +23,21 @@
 
 #include <stdlib.h>
 
-static void checkPixelsForThreshold(void);
+/*static void checkPixelsForThreshold(void);*/
 
 static AMG8833_Dev_t devAMG8833;
 
 static bool isInit = false;
 static bool isTested = false;
 
-static float ambientTemperature;
+/*static float ambientTemperature;
 static float maxTemp;
-static uint8_t severity;
-static uint8_t heatLevel;
-static const float heatSourceTemperature = 30;
+static uint8_t heatLevel;*/
+/*static const float heatSourceTemperature = 29;*/
 
-static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
-static uint32_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
+/*static float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
+static uint8_t pixelRows[AMG88xx_PIXEL_ARRAY_SIZE / 8];
+static uint8_t pixelTempCounts[AMG88xx_PIXEL_ARRAY_SIZE / 8];*/
 
 static void tcTask(void *param) {
 
@@ -47,23 +47,23 @@ static void tcTask(void *param) {
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
-		vTaskDelayUntil(&lastWakeTime, M2T(50));
-		readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
+		vTaskDelayUntil(&lastWakeTime, M2T(10));
+		/*readPixels(&devAMG8833, pixels, AMG88xx_PIXEL_ARRAY_SIZE);
 		ambientTemperature = readThermistor(&devAMG8833);
-		checkPixelsForThreshold();
+		checkPixelsForThreshold();*/
 	}
 }
 
-static void checkPixelsForThreshold() {
+/*static void checkPixelsForThreshold() {
 	// Initiate iterators
 	int step = 0;
 	int stepIndex = 0;
 	maxTemp = 0;
-	severity = 0;
 	heatLevel = 0;
 	// Populate pixel row values
 	for (int i = 0; i < 8; i++) {
 		pixelRows[i] = 0;
+		pixelTempCounts[i] = 0;
 	}
 	// Iterate through each pixel and filter out
 	for (int i = 0; i < AMG88xx_PIXEL_ARRAY_SIZE; i++) {
@@ -71,14 +71,12 @@ static void checkPixelsForThreshold() {
 		float currentPixelTemperature = pixels[i];
 		// Prepare a value for bitwise operation
 		int bitwise = 0;
-		if (currentPixelTemperature > ambientTemperature) {
-			severity++;
-			bitwise = 1 << (7 - step);
-		}
 		if (currentPixelTemperature > heatSourceTemperature) {
 			heatLevel++;
+			bitwise = 1 << (7 - step);
+			pixelTempCounts[stepIndex] = pixelTempCounts[stepIndex] + 1;
+			pixelRows[stepIndex] = pixelRows[stepIndex] | bitwise;
 		}
-		pixelRows[stepIndex] = pixelRows[stepIndex] | bitwise;
 		step++;
 		if (step == 8) {
 			step = 0;
@@ -89,7 +87,7 @@ static void checkPixelsForThreshold() {
 			maxTemp = currentPixelTemperature;
 		}
 	}
-}
+}*/
 
 static void tcInit() {
 	if (isInit) {
@@ -129,16 +127,23 @@ PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcThermal, &isInit)
 PARAM_GROUP_STOP(deck)
 
 LOG_GROUP_START(tc)
-LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
-LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)
-LOG_ADD(LOG_UINT32, PIXEL_ROW_00, &(pixelRows[0]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_01, &(pixelRows[1]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_02, &(pixelRows[2]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_03, &(pixelRows[3]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_04, &(pixelRows[4]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_05, &(pixelRows[5]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_06, &(pixelRows[6]))
-LOG_ADD(LOG_UINT32, PIXEL_ROW_07, &(pixelRows[7]))
-LOG_ADD(LOG_UINT8, SEVERITY, &severity)
-LOG_ADD(LOG_UINT8, HEAT_LEVEL, &heatLevel)
+/*LOG_ADD(LOG_FLOAT, TEMPERATURE, &ambientTemperature)
+LOG_ADD(LOG_FLOAT, MTEMPERATURE, &maxTemp)*//*
+LOG_ADD(LOG_UINT8, PIXEL_ROW_00, &(pixelRows[0]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_01, &(pixelRows[1]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_02, &(pixelRows[2]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_03, &(pixelRows[3]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_04, &(pixelRows[4]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_05, &(pixelRows[5]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_06, &(pixelRows[6]))
+LOG_ADD(LOG_UINT8, PIXEL_ROW_07, &(pixelRows[7]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_00, &(pixelTempCounts[0]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_01, &(pixelTempCounts[1]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_02, &(pixelTempCounts[2]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_03, &(pixelTempCounts[3]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_04, &(pixelTempCounts[4]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_05, &(pixelTempCounts[5]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_06, &(pixelTempCounts[6]))
+LOG_ADD(LOG_UINT8, PIXEL_TOT_07, &(pixelTempCounts[7]))*/
+/*LOG_ADD(LOG_UINT8, HEAT_LEVEL, &heatLevel)*/
 LOG_GROUP_STOP(tc)

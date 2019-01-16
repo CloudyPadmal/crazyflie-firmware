@@ -49,44 +49,52 @@ static bool isTested = false;
 #define OA_PIN_NORTH  PCA9555_P02
 #define OA_PIN_NEAST  PCA9555_P03
 #define OA_PIN_EFLAT  PCA9555_P04
+/*
 #define OA_PIN_EDOWN  PCA9555_P05
 #define OA_PIN_ERISE  PCA9555_P06
+*/
 #define OA_PIN_SEAST  PCA9555_P07
 #define OA_PIN_SOUTH  PCA9555_P10
 #define OA_PIN_SWEST  PCA9555_P11
+/*
 #define OA_PIN_WRISE  PCA9555_P12
 #define OA_PIN_WDOWN  PCA9555_P13
+*/
 #define OA_PIN_WFLAT  PCA9555_P14
 #define OA_PIN_NWEST  PCA9555_P01
-#define OA_PIN_UPPER  PCA9555_P17
+/*#define OA_PIN_UPPER  PCA9555_P17*/
 
 static VL53L1_Dev_t devNORTH; // 50
 static VL53L1_Dev_t devNEAST; // 51
 static VL53L1_Dev_t devEFLAT; // 52
+/*
 static VL53L1_Dev_t devEDOWN; // 53
 static VL53L1_Dev_t devERISE; // 54
+*/
 static VL53L1_Dev_t devSEAST; // 55
 static VL53L1_Dev_t devSOUTH; // 56
 static VL53L1_Dev_t devSWEST; // 57
+/*
 static VL53L1_Dev_t devWRISE; // 58
 static VL53L1_Dev_t devWDOWN; // 59
+*/
 static VL53L1_Dev_t devWFLAT; // 60
 static VL53L1_Dev_t devNWEST; // 49
-static VL53L1_Dev_t devUPPER; // 61
+/*static VL53L1_Dev_t devUPPER; // 61*/
 
 static uint16_t rNORTH;
 static uint16_t rNEAST;
 static uint16_t rEFLAT;
-static uint16_t rEDOWN;
-static uint16_t rERISE;
+/*static uint16_t rEDOWN;
+static uint16_t rERISE;*/
 static uint16_t rSEAST;
 static uint16_t rSOUTH;
 static uint16_t rSWEST;
-static uint16_t rWRISE;
-static uint16_t rWDOWN;
+/*static uint16_t rWRISE;
+static uint16_t rWDOWN;*/
 static uint16_t rWFLAT;
 static uint16_t rNWEST;
-static uint16_t rUPPER;
+/*static uint16_t rUPPER;*/
 
 static void setupROIs(VL53L1_Dev_t *dev, int lx, int ly, int rx, int ry)
 {
@@ -126,34 +134,34 @@ static void oaTask(void *param) {
 	VL53L1_StopMeasurement(&devNORTH);VL53L1_StartMeasurement(&devNORTH);
 	VL53L1_StopMeasurement(&devNEAST);VL53L1_StartMeasurement(&devNEAST);
 	VL53L1_StopMeasurement(&devEFLAT);VL53L1_StartMeasurement(&devEFLAT);
-	VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
-	VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);
+	/*VL53L1_StopMeasurement(&devEDOWN);VL53L1_StartMeasurement(&devEDOWN);
+	VL53L1_StopMeasurement(&devERISE);VL53L1_StartMeasurement(&devERISE);*/
 	VL53L1_StopMeasurement(&devSEAST);VL53L1_StartMeasurement(&devSEAST);
 	VL53L1_StopMeasurement(&devSOUTH);VL53L1_StartMeasurement(&devSOUTH);
 	VL53L1_StopMeasurement(&devSWEST);VL53L1_StartMeasurement(&devSWEST);
-	VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
-	VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);
+	/*VL53L1_StopMeasurement(&devWRISE);VL53L1_StartMeasurement(&devWRISE);
+	VL53L1_StopMeasurement(&devWDOWN);VL53L1_StartMeasurement(&devWDOWN);*/
 	VL53L1_StopMeasurement(&devWFLAT);VL53L1_StartMeasurement(&devWFLAT);
 	VL53L1_StopMeasurement(&devNWEST);VL53L1_StartMeasurement(&devNWEST);
-	VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);
+	/*VL53L1_StopMeasurement(&devUPPER);VL53L1_StartMeasurement(&devUPPER);*/
 
 	TickType_t lastWakeTime = xTaskGetTickCount();
 
 	while (1) {
-		vTaskDelayUntil(&lastWakeTime, M2T(50));
+		vTaskDelayUntil(&lastWakeTime, M2T(10));
 		rNORTH = oaGetMeasurementAndRestart(&devNORTH);
 		rNEAST = oaGetMeasurementAndRestart(&devNEAST);
 		rEFLAT = oaGetMeasurementAndRestart(&devEFLAT);
-		rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
-		rERISE = oaGetMeasurementAndRestart(&devERISE);
+		/*rEDOWN = oaGetMeasurementAndRestart(&devEDOWN);
+		rERISE = oaGetMeasurementAndRestart(&devERISE);*/
 		rSEAST = oaGetMeasurementAndRestart(&devSEAST);
 		rSOUTH = oaGetMeasurementAndRestart(&devSOUTH);
 		rSWEST = oaGetMeasurementAndRestart(&devSWEST);
-		rWRISE = oaGetMeasurementAndRestart(&devWRISE);
-		rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);
+		/*rWRISE = oaGetMeasurementAndRestart(&devWRISE);
+		rWDOWN = oaGetMeasurementAndRestart(&devWDOWN);*/
 		rWFLAT = oaGetMeasurementAndRestart(&devWFLAT);
 		rNWEST = oaGetMeasurementAndRestart(&devNWEST);
-		rUPPER = oaGetMeasurementAndRestart(&devUPPER);
+		/*rUPPER = oaGetMeasurementAndRestart(&devUPPER);*/
 	}
 }
 
@@ -166,22 +174,22 @@ static void oaInit() {
 	// Output port configuration
 	pca9555ConfigOutputRegA(~(
 			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
-			OA_PIN_NEAST | OA_PIN_EFLAT | OA_PIN_EDOWN |
-			OA_PIN_ERISE | OA_PIN_SEAST
+			OA_PIN_NEAST | OA_PIN_EFLAT | /*OA_PIN_EDOWN |
+			OA_PIN_ERISE |*/ OA_PIN_SEAST
 	));
 	pca9555ConfigOutputRegB(~(
-			OA_PIN_SOUTH | OA_PIN_SWEST | OA_PIN_WRISE |
-			OA_PIN_WDOWN | OA_PIN_WFLAT | OA_PIN_UPPER
+			OA_PIN_SOUTH | OA_PIN_SWEST | /*OA_PIN_WRISE |
+			OA_PIN_WDOWN |*/ OA_PIN_WFLAT /*| OA_PIN_UPPER*/
 	));
 	// Clear output ports
 	pca9555ClearOutputRegA(
 			OA_PIN_LIGHT | OA_PIN_NWEST | OA_PIN_NORTH |
-			OA_PIN_NEAST | OA_PIN_EFLAT | OA_PIN_EDOWN |
-			OA_PIN_ERISE | OA_PIN_SEAST
+			OA_PIN_NEAST | OA_PIN_EFLAT | /*OA_PIN_EDOWN |
+			OA_PIN_ERISE |*/ OA_PIN_SEAST
 	);
 	pca9555ClearOutputRegB(
-			OA_PIN_SOUTH | OA_PIN_SWEST | OA_PIN_WRISE |
-			OA_PIN_WDOWN | OA_PIN_WFLAT | OA_PIN_UPPER
+			OA_PIN_SOUTH | OA_PIN_SWEST | /*OA_PIN_WRISE |
+			OA_PIN_WDOWN |*/ OA_PIN_WFLAT /*| OA_PIN_UPPER*/
 	);
 
 	isInit = true;
@@ -232,7 +240,7 @@ static bool oaTest() {
 		DEBUG_PRINT("Init EFLAT sensor [FAIL]\n");
 		pass = false;
 	}
-	pca9555SetOutputRegA(OA_PIN_EDOWN);
+	/*pca9555SetOutputRegA(OA_PIN_EDOWN);
 	if (vl53l1xInit(&devEDOWN, I2C1_DEV)) {
 		DEBUG_PRINT("Init EDOWN sensor [OK]\n");
 		setupROIs(&devEDOWN, 6, 8, 9, 5);
@@ -247,7 +255,7 @@ static bool oaTest() {
 	} else {
 		DEBUG_PRINT("Init ERISE sensor [FAIL]\n");
 		pass = false;
-	}
+	}*/
 	pca9555SetOutputRegA(OA_PIN_SEAST);
 	if (vl53l1xInit(&devSEAST, I2C1_DEV)) {
 		DEBUG_PRINT("Init SEAST sensor [OK]\n");
@@ -273,7 +281,7 @@ static bool oaTest() {
 		DEBUG_PRINT("Init SWEST sensor [FAIL]\n");
 		pass = false;
 	}
-	pca9555SetOutputRegB(OA_PIN_WRISE);
+	/*pca9555SetOutputRegB(OA_PIN_WRISE);
 	if (vl53l1xInit(&devWRISE, I2C1_DEV)) {
 		DEBUG_PRINT("Init WRISE sensor [OK]\n");
 		setupROIs(&devWRISE, 6, 8, 9, 5);
@@ -288,7 +296,7 @@ static bool oaTest() {
 	} else {
 		DEBUG_PRINT("Init WDOWN sensor [FAIL]\n");
 		pass = false;
-	}
+	}*/
 	pca9555SetOutputRegB(OA_PIN_WFLAT);
 	if (vl53l1xInit(&devWFLAT, I2C1_DEV)) {
 		DEBUG_PRINT("Init WFLAT sensor [OK]\n");
@@ -297,14 +305,14 @@ static bool oaTest() {
 		DEBUG_PRINT("Init WFLAT sensor [FAIL]\n");
 		pass = false;
 	}
-	pca9555SetOutputRegB(OA_PIN_UPPER);
+	/*pca9555SetOutputRegB(OA_PIN_UPPER);
 	if (vl53l1xInit(&devUPPER, I2C1_DEV)) {
 		DEBUG_PRINT("Init UPPER sensor [OK]\n");
 		setupROIs(&devUPPER, 6, 8, 9, 5);
 	} else {
 		DEBUG_PRINT("Init UPPER sensor [FAIL]\n");
 		pass = false;
-	}
+	}*/
 	// Turn LED ON
 	turnLEDON();
 	isTested = true;
@@ -328,14 +336,14 @@ LOG_GROUP_START(oa)
 LOG_ADD(LOG_UINT16, NORTH, &rNORTH)
 LOG_ADD(LOG_UINT16, NEAST, &rNEAST)
 LOG_ADD(LOG_UINT16, EFLAT, &rEFLAT)
-LOG_ADD(LOG_UINT16, EDOWN, &rEDOWN)
-LOG_ADD(LOG_UINT16, ERISE, &rERISE)
+/*LOG_ADD(LOG_UINT16, EDOWN, &rEDOWN)
+LOG_ADD(LOG_UINT16, ERISE, &rERISE)*/
 LOG_ADD(LOG_UINT16, SEAST, &rSEAST)
 LOG_ADD(LOG_UINT16, SOUTH, &rSOUTH)
 LOG_ADD(LOG_UINT16, SWEST, &rSWEST)
-LOG_ADD(LOG_UINT16, WRISE, &rWRISE)
-LOG_ADD(LOG_UINT16, WDOWN, &rWDOWN)
+/*LOG_ADD(LOG_UINT16, WRISE, &rWRISE)
+LOG_ADD(LOG_UINT16, WDOWN, &rWDOWN)*/
 LOG_ADD(LOG_UINT16, WFLAT, &rWFLAT)
 LOG_ADD(LOG_UINT16, NWEST, &rNWEST)
-LOG_ADD(LOG_UINT16, UPPER, &rUPPER)
+/*LOG_ADD(LOG_UINT16, UPPER, &rUPPER)*/
 LOG_GROUP_STOP(oa)
